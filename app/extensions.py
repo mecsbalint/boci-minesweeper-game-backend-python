@@ -1,2 +1,4 @@
 
-# Flask extensions' initialization like Flask-Login or Flask-Sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
