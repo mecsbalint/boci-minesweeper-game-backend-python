@@ -1,5 +1,7 @@
-from .user import init_user
+from .user import User
 
 
-def init_models(db):
-    init_user(db)
+def create_tables(app, db):
+    with app.app_context():
+        db.drop_all()
+        db.create_all()

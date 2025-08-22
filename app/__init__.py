@@ -1,9 +1,10 @@
 from flask import Flask
-from app import routes
+from app.controllers import init_endpoints
 from app.extensions import db
-from app import models
+from app.models import create_tables
 from dotenv import load_dotenv
 import os
+from flask_jwt_extended import JWTManager
 
 
 def create_app():
@@ -11,10 +12,13 @@ def create_app():
 
     app = Flask(__name__)
 
-    routes.init_endpoints(app)
+    init_endpoints(app)
+
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    jwt = JWTManager(app)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     db.init_app(app)
-    models.init_models(db)
+    create_tables(app, db)
 
     return app
