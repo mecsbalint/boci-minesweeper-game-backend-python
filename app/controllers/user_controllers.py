@@ -11,13 +11,13 @@ def init_user_endpoints(app):
         email = data.get("email")
         password = data.get("password")
 
-        user_valid = validate_user(email, password)
+        user_name = validate_user(email, password)
 
-        if not user_valid:
+        if not user_name:
             return jsonify({"msg": "Bad username or password"}), 401
 
         access_token = create_access_token(identity=email)
-        return jsonify(jwt=access_token)
+        return jsonify({"jwt": access_token, "name": user_name})
 
     @app.route("/api/registration", methods=["POST"])
     def registration():

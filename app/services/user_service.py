@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 def validate_user(email, password):
     user = get_user_by_email(email)
 
-    return True if user and check_password_hash(user.password, password) else False
+    return user.name if user and check_password_hash(user.password, password) else None
 
 
 def get_user_by_email(email):
