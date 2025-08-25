@@ -5,6 +5,7 @@ from app.models import create_tables
 from dotenv import load_dotenv
 import os
 from flask_jwt_extended import JWTManager
+from app.security.jwt import init_flask_jwt
 
 
 def create_app():
@@ -16,6 +17,7 @@ def create_app():
 
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     jwt = JWTManager(app)
+    init_flask_jwt(jwt)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     db.init_app(app)
