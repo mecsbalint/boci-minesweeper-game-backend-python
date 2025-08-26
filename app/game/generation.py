@@ -21,7 +21,7 @@ def create_Game(rows: int, columns: int) -> Game:
 
 
 def populate_with_mines(cells: list[Cell], start_position: Cell, num_of_mines: int):
-    cells = [cell for cell in list(cells) if not is_neighbor(start_position, cell)]
+    cells = [cell for cell in list(cells) if not is_neighbor(start_position, cell) and start_position is not cell]
 
     for x in range(num_of_mines):
         cell = choice(cells)
@@ -32,4 +32,4 @@ def populate_with_mines(cells: list[Cell], start_position: Cell, num_of_mines: i
 def is_neighbor(cell_1: Cell, cell_2: Cell) -> bool:
     (x_1, y_1) = cell_1.coordinates
     (x_2, y_2) = cell_2.coordinates
-    return (x_1 - x_2) * -1 in [0, 1] and (y_1 - y_2) * -1 in [0, 1]
+    return (x_1 - x_2) * -1 in [0, 1] and (y_1 - y_2) * -1 in [0, 1] and cell_1 is not cell_2
