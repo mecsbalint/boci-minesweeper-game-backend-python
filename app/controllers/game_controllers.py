@@ -1,6 +1,6 @@
-from flask import current_app
+from flask import current_app, jsonify
 from flask_jwt_extended import jwt_required, current_user
-from app.services.game_service import create_game as create_game_service
+from app.services.game_service import create_game as create_game_service, check_active_game
 
 
 def init_game_endpoints(app):
@@ -11,3 +11,11 @@ def init_game_endpoints(app):
         game_sessions = current_app.game_sessions
         is_successful = create_game_service(current_user, game_sessions)
         return is_successful
+
+    @app.route("/api/game/active", methods=["GET"])
+    @jwt_required()
+    def check_active_game_status():
+        game_sessions = current_app.game_sessions
+        active_status = check_active_game(current_user, game_sessions)
+
+        return jsonify({"status": active_status})
