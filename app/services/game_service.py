@@ -1,4 +1,4 @@
 
-def create_game(user_email):
+def create_game(user_email) -> bool:
 
     return True
