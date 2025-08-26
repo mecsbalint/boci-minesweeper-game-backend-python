@@ -10,7 +10,7 @@ def validate_user(email, password):
     return user.name if user and check_password_hash(user.password, password) else None
 
 
-def get_user_by_email(email):
+def get_user_by_email(email) -> User | None:
     user = User.query.filter_by(email=email).first()
     return user
 

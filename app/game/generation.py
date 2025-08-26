@@ -1,13 +1,17 @@
 from .models import Game, Cell
 from random import choice
 
+NUM_OF_ROWS = 10
+NUM_OF_COLUMNS = 10
+NUM_OF_MINES = 5
 
-def create_Game(rows: int, columns: int) -> Game:
+
+def generate_game() -> Game:
     cells = []
-    game = Game(rows, columns, cells)
+    game = Game(NUM_OF_ROWS, NUM_OF_COLUMNS, cells)
 
-    for x in range(columns):
-        for y in range(rows):
+    for x in range(NUM_OF_COLUMNS):
+        for y in range(NUM_OF_ROWS):
             cell = Cell(game, (x, y), False, [])
             cells.append(cell)
 
@@ -20,10 +24,10 @@ def create_Game(rows: int, columns: int) -> Game:
     return game
 
 
-def populate_with_mines(cells: list[Cell], start_position: Cell, num_of_mines: int):
+def populate_with_mines(cells: list[Cell], start_position: Cell):
     cells = [cell for cell in list(cells) if not is_neighbor(start_position, cell) and start_position is not cell]
 
-    for x in range(num_of_mines):
+    for x in range(NUM_OF_MINES):
         cell = choice(cells)
         cell.is_mine = True
         cells.remove(cell)
