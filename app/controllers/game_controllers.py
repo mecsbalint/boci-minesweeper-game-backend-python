@@ -26,3 +26,8 @@ def init_game_endpoints(app):
         game_sessions = current_app.game_sessions
         game_state_dto = get_active_game(current_user, game_sessions)
         return jsonify({"gameState": game_state_dto})
+
+    @app.route("/api/game", methods=["PATCH"])
+    @jwt_required()
+    def make_move():
+        pass
