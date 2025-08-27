@@ -1,9 +1,9 @@
 from app.game.models import Game, Cell
 
 
-class GameStateDto:
+class GameDto:
     def __init__(self, game: Game):
-        self.is_started = game.is_started
+        self.state = game.state.name
         self.rows = game.rows
         self.columns = game.columns
         self.cells = [CellDto(cell) for cell in game.cells]
