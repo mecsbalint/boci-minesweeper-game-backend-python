@@ -18,7 +18,7 @@ class Coordinates():
         self.x = x
         self.y = y
 
-    def get_coordinates(self) -> tuple:
+    def get_coordinates(self) -> tuple[int, int]:
         return (self.x, self.y)
 
 
@@ -40,4 +40,4 @@ class Cell:
         self.num_neighbor_mines = self.count_neighbor_mines()
 
     def count_neighbor_mines(self) -> int:
-        return len(filter(lambda cell: cell.is_mine, self.neighbors))
+        return len(list(filter(lambda cell: cell.is_mine, self.neighbors)))

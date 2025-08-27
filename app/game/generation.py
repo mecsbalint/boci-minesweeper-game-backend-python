@@ -13,7 +13,7 @@ def generate_game() -> Game:
     for x in range(NUM_OF_COLUMNS):
         for y in range(NUM_OF_ROWS):
             cell = Cell(game, False, [])
-            cells[(x, y)] = cell
+            cells[Coordinates(x, y)] = cell
 
     for cell_coor, cell in cells.items():
         neighbors = [other_cell for other_coor, other_cell in cells.items() if __is_neighbor(cell_coor, other_coor)]
@@ -25,7 +25,11 @@ def generate_game() -> Game:
 
 
 def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordinates):
-    valid_cells = [cell for cell_coor, cell in cells.items() if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor]
+    valid_cells = [
+        cell
+        for cell_coor, cell in cells.items()
+        if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor
+        ]
 
     for x in range(NUM_OF_MINES):
         cell = choice(valid_cells)

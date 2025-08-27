@@ -6,7 +6,7 @@ class GameDto:
         self.state = game.state.name
         self.rows = game.rows
         self.columns = game.columns
-        self.cells = [CellDto(cell) for cell in game.cells]
+        self.cells = [CellDto(cell) for cell in game.cells.values()]
 
 
 class CellDto:
