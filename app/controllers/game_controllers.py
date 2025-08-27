@@ -9,8 +9,8 @@ def init_game_endpoints(app):
     @jwt_required()
     def create_game():
         game_sessions = current_app.game_sessions
-        is_successful = create_game_service(current_user, game_sessions)
-        return is_successful
+        game_state_dto = create_game_service(current_user, game_sessions)
+        return jsonify({"gameState": game_state_dto})
 
     @app.route("/api/game/active", methods=["GET"])
     @jwt_required()
