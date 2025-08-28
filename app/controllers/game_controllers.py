@@ -1,5 +1,5 @@
 from flask import current_app, jsonify, Response, Flask, request
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
 from app.services.dtos import PlayerMoveDto
 from app.services.game_service import create_game as create_game_service, check_active_game, get_active_game, make_player_move
 from app.services.game_session_manager import GameSessionManager
@@ -12,7 +12,7 @@ def init_game_endpoints(app: Flask):
     def create_game() -> Response:
         game_sessions: GameSessionManager = current_app.game_sessions
         game_state_dto = create_game_service(current_user, game_sessions)
-        return jsonify({"gameState": game_state_dto})
+        return jsonify(game_state_dto)
 
     @app.route("/api/game/active", methods=["GET"])
     @jwt_required()

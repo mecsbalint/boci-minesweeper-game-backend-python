@@ -2,6 +2,12 @@ from app.game.models import Game, Cell, GameState
 from typing import Literal
 
 
+class JwtResponseDto:
+    def __init__(self, jwt: str, user_name: str):
+        self.jwt = jwt
+        self.user_name = user_name
+
+
 class PlayerMoveDto:
     def __init__(self, coordinates: dict[Literal["x", "y"], int], action_type: Literal["REVEAL", "FLAG"]):
         self.coordinates = coordinates

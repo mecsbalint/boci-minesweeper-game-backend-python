@@ -1,9 +1,10 @@
-from flask import request, jsonify
-from flask_jwt_extended import create_access_token
+from flask import request, jsonify, Flask
+from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
+from app.services.dtos import JwtResponseDto
 from app.services.user_service import create_user, validate_user
 
 
-def init_user_endpoints(app):
+def init_user_endpoints(app: Flask):
 
     @app.route("/api/login", methods=["POST"])
     def login():
@@ -11,13 +12,16 @@ def init_user_endpoints(app):
         email = data.get("email")
         password = data.get("password")
 
-        user_name = validate_user(email, password)
+        validation_response = validate_user(email, password)
 
-        if not user_name:
+        if not validation_response:
             return jsonify({"msg": "Bad username or password"}), 401
 
-        access_token = create_access_token(identity=email)
-        return jsonify({"jwt": access_token, "name": user_name})
+        user_id, user_name = validation_response
+
+        access_token = create_access_token(identity=user_id)
+        response_obj = JwtResponseDto(access_token, user_name)
+        return jsonify(response_obj)
 
     @app.route("/api/registration", methods=["POST"])
     def registration():
