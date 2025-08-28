@@ -31,7 +31,7 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor
         ]
 
-    for x in range(NUM_OF_MINES):
+    for _ in range(NUM_OF_MINES):
         cell = choice(valid_cells)
         cell.is_mine = True
         valid_cells.remove(cell)
