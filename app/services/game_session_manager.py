@@ -3,7 +3,7 @@ from app.game.models import Game
 
 class GameSessionManager():
     def __init__(self):
-        self.__sessions = {}
+        self.__sessions: dict[int, Game] = {}
 
     @property
     def game_sessions(self):
