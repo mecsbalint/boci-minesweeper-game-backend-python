@@ -1,7 +1,7 @@
 from flask import Flask
 from app.controllers import init_endpoints
 from app.extensions import db
-from app.models import create_tables
+from app.database import create_tables
 from dotenv import load_dotenv
 import os
 from flask_jwt_extended import JWTManager

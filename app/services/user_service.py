@@ -1,6 +1,6 @@
 from typing import cast
 from app.extensions import db
-from app.models.user import User
+from app.database.db_models import User
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
