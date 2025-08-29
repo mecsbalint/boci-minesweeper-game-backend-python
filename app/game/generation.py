@@ -40,4 +40,4 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
 def __is_neighbor(coordinates_1: Coordinates, coordinates_2: Coordinates) -> bool:
     (x_1, y_1) = coordinates_1.get_coordinates()
     (x_2, y_2) = coordinates_2.get_coordinates()
-    return (x_1 - x_2) * -1 in [0, 1] and (y_1 - y_2) * -1 in [0, 1] and coordinates_1 != coordinates_2
+    return abs(x_1 - x_2) <= 1 and abs(y_1 - y_2) <= 1 and coordinates_1 != coordinates_2
