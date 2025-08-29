@@ -9,7 +9,7 @@ def create_game(user_id: int, game_sessions: GameSessionManager) -> GameDto | No
     game: Game = generate_game()
     game_sessions.add_game(user_id, game)
 
-    return GameDto(game)
+    return GameDto.from_game(game)
 
 
 def check_active_game(user_id: int, game_sessions: GameSessionManager) -> bool:
@@ -21,7 +21,7 @@ def get_active_game(user_id: int, game_sessions: GameSessionManager) -> GameDto 
     game = game_sessions.get_game(user_id)
     if not game:
         return None
-    return GameDto(game)
+    return GameDto.from_game(game)
 
 
 def make_player_move(user_id: int, game_sessions: GameSessionManager, player_move: PlayerMoveDto) -> GameDto | None:
@@ -31,5 +31,5 @@ def make_player_move(user_id: int, game_sessions: GameSessionManager, player_mov
 
     if game:
         handle_player_step(game, action_type, action_coordinates)
-        return GameDto(game)
+        return GameDto.from_game(game)
     return None

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum, auto
 
 
@@ -13,10 +14,10 @@ class ActionType(Enum):
     FLAG = auto()
 
 
-class Coordinates():
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+@dataclass(frozen=True)
+class Coordinates:
+    x: int
+    y: int
 
     def get_coordinates(self) -> tuple[int, int]:
         return (self.x, self.y)

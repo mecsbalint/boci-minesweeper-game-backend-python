@@ -21,7 +21,7 @@ def init_user_endpoints(app: CustomFlask):
 
         user_id, user_name = validation_response
 
-        access_token = create_access_token(identity=user_id)
+        access_token = create_access_token(identity=str(user_id))
         response_obj = JwtResponseDto(access_token, user_name)
         return jsonify(asdict(response_obj))
 

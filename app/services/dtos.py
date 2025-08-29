@@ -20,7 +20,7 @@ class GameDto:
     state: str
     rows: int
     columns: int
-    cells: dict["CoordinatesDto", "CellDto"]
+    cells: dict[str, "CellDto"]
 
     @classmethod
     def from_game(cls, game: Game):
@@ -29,16 +29,10 @@ class GameDto:
             rows=game.rows,
             columns=game.columns,
             cells={
-                CoordinatesDto(*coordinates.get_coordinates()): CellDto.from_cell(cell, game.state)
+                f"{coordinates.x},{coordinates.y}": CellDto.from_cell(cell, game.state)
                 for coordinates, cell in game.cells.items()
                 }
         )
-
-
-@dataclass
-class CoordinatesDto:
-    x: int
-    y: int
 
 
 @dataclass
