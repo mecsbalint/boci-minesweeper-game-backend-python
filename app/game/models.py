@@ -38,7 +38,7 @@ class Cell:
         self.neighbors = neighbors
         self.is_hidden = True
         self.is_flagged = False
-        self.num_neighbor_mines = self.count_neighbor_mines()
+        self.num_neighbor_mines = 0
 
     def count_neighbor_mines(self) -> int:
         return len(list(filter(lambda cell: cell.is_mine, self.neighbors)))

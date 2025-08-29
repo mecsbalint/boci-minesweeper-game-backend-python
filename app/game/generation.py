@@ -36,6 +36,9 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         cell.is_mine = True
         valid_cells.remove(cell)
 
+    for cell in cells.values():
+        cell.num_neighbor_mines = cell.count_neighbor_mines()
+
 
 def __is_neighbor(coordinates_1: Coordinates, coordinates_2: Coordinates) -> bool:
     (x_1, y_1) = coordinates_1.get_coordinates()
