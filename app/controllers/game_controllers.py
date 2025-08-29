@@ -1,7 +1,7 @@
 from typing import cast
 from flask import current_app, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
-from app import CustomFlask
+from app.custom_flask import CustomFlask
 from app.services.dtos import PlayerMoveDto
 from app.services import game_service
 

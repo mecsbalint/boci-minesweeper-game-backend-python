@@ -1,4 +1,4 @@
-from app import CustomFlask
+from app.custom_flask import CustomFlask
 from .user_controllers import init_user_endpoints
 from .game_controllers import init_game_endpoints
 

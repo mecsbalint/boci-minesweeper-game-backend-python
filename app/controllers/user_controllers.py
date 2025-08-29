@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app import CustomFlask
+from app.custom_flask import CustomFlask
 from app.services.dtos import JwtResponseDto
 from app.services import user_service
 

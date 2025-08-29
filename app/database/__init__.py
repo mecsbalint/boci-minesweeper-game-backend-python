@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from app import CustomFlask
+from app.custom_flask import CustomFlask
 
 
 def create_tables(app: CustomFlask, db: SQLAlchemy):
