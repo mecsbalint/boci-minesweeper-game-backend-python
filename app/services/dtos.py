@@ -1,11 +1,12 @@
 from app.game.models import Game, Cell, GameState
 from typing import Literal
+from dataclasses import dataclass
 
 
+@dataclass
 class JwtResponseDto:
-    def __init__(self, jwt: str, user_name: str):
-        self.jwt = jwt
-        self.user_name = user_name
+    jwt: str
+    name: str
 
 
 class PlayerMoveDto:
@@ -14,17 +15,39 @@ class PlayerMoveDto:
         self.action_type = action_type
 
 
+@dataclass
 class GameDto:
-    def __init__(self, game: Game):
-        self.state = game.state.name
-        self.rows = game.rows
-        self.columns = game.columns
-        self.cells = {coordinates: CellDto(cell, game.state) for coordinates, cell in game.cells.items()}
+    state: str
+    rows: int
+    columns: int
+    cells: dict["CoordinatesDto", "CellDto"]
+
+    @classmethod
+    def from_game(cls, game: Game):
+        return cls(
+            state=game.state.name,
+            rows=game.rows,
+            columns=game.columns,
+            cells={
+                CoordinatesDto(*coordinates.get_coordinates()): CellDto.from_cell(cell, game.state)
+                for coordinates, cell in game.cells.items()
+                }
+        )
 
 
+@dataclass
+class CoordinatesDto:
+    x: int
+    y: int
+
+
+@dataclass
 class CellDto:
-    def __init__(self, cell: Cell, game_state: GameState):
-        self.state = CellDto.__get_state(cell, game_state)
+    state: str
+
+    @classmethod
+    def from_cell(cls, cell: Cell, game_state: GameState) -> "CellDto":
+        return cls(state=cls.__get_state(cell, game_state))
 
     @staticmethod
     def __get_state(cell: Cell, game_state: GameState) -> str:

@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[rep
 from app.custom_flask import CustomFlask
 from app.services.dtos import PlayerMoveDto
 from app.services import game_service
+from dataclasses import asdict
 
 
 def init_game_endpoints(app: CustomFlask):
@@ -13,7 +14,7 @@ def init_game_endpoints(app: CustomFlask):
     def create_game() -> Response:  # pyright: ignore[reportUnusedFunction]
         game_sessions = cast(CustomFlask, current_app).game_sessions
         game_state_dto = game_service.create_game(current_user, game_sessions)
-        return jsonify(game_state_dto)
+        return jsonify(asdict(game_state_dto))
 
     @app.route("/api/game/active", methods=["GET"])
     @jwt_required()
@@ -28,7 +29,7 @@ def init_game_endpoints(app: CustomFlask):
     def get_current_game() -> Response:  # pyright: ignore[reportUnusedFunction]
         game_sessions = cast(CustomFlask, current_app).game_sessions
         game_state_dto = game_service.get_active_game(current_user, game_sessions)
-        return jsonify({"gameState": game_state_dto})
+        return jsonify({"gameState": asdict(game_state_dto)})
 
     @app.route("/api/game", methods=["PATCH"])
     @jwt_required()
@@ -38,4 +39,4 @@ def init_game_endpoints(app: CustomFlask):
         player_move = PlayerMoveDto(**body)
 
         game_state_dto = game_service.make_player_move(current_user, game_sessions, player_move)
-        return jsonify({"gameState": game_state_dto})
+        return jsonify({"gameState": asdict(game_state_dto)})

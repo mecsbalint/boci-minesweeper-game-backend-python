@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnkn
 from app.custom_flask import CustomFlask
 from app.services.dtos import JwtResponseDto
 from app.services import user_service
+from dataclasses import asdict
 
 
 def init_user_endpoints(app: CustomFlask):
@@ -22,7 +23,7 @@ def init_user_endpoints(app: CustomFlask):
 
         access_token = create_access_token(identity=user_id)
         response_obj = JwtResponseDto(access_token, user_name)
-        return jsonify(response_obj)
+        return jsonify(asdict(response_obj))
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
