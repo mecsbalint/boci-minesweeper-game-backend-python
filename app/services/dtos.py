@@ -32,7 +32,7 @@ class GameDto:
                 f"{coordinates.x},{coordinates.y}": CellDto.from_cell(cell, game.state)
                 for coordinates, cell in game.cells.items()
                 }
-        )
+            )
 
 
 @dataclass
