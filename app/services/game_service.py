@@ -1,15 +1,13 @@
 from app.game.gameplay import handle_player_step
-from app.game.models import ActionType, Coordinates, Game
+from app.game.models import ActionType, Coordinates, Game, GameState
 from app.services.game_session_manager import GameSessionManager
 from app.game.generation import generate_game
 from .dtos import GameDto, PlayerMoveDto
 
 
-def create_game(user_id: int, game_sessions: GameSessionManager) -> GameDto | None:
+def create_game(user_id: int, game_sessions: GameSessionManager):
     game: Game = generate_game()
     game_sessions.add_game(user_id, game)
-
-    return GameDto.from_game(game)
 
 
 def check_active_game(user_id: int, game_sessions: GameSessionManager) -> bool:
@@ -31,5 +29,7 @@ def make_player_move(user_id: int, game_sessions: GameSessionManager, player_mov
 
     if game:
         handle_player_step(game, action_type, action_coordinates)
+        if game.state == GameState.FINISHED_LOST or game.state == GameState.FINISHED_WON:
+            game_sessions.remove_game(user_id)
         return GameDto.from_game(game)
     return None

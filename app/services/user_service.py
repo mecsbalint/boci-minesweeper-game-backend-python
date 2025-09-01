@@ -33,5 +33,5 @@ def create_user(name: str, email: str, password: str) -> bool:
         return True
     except IntegrityError:
         db.session.rollback()
-        print("Constraint violated while saving User")
+        print("Constraint is violated while saving User")
         return False

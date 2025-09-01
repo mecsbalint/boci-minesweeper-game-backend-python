@@ -32,7 +32,7 @@ def init_user_endpoints(app: CustomFlask):
         email = data.get("email")
         password = data.get("password")
 
-        is_succesful = user_service.create_user(name, email, password)
-        status_code = 201 if is_succesful else 409
+        is_successful = user_service.create_user(name, email, password)
+        status_code = 201 if is_successful else 409
 
-        return jsonify({"is_succesful": is_succesful}), status_code
+        return jsonify({"is_successful": is_successful}), status_code

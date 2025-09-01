@@ -28,7 +28,7 @@ class Game:
         self.rows = rows
         self.columns = columns
         self.cells = cells
-        self.state = GameState.INITIALIZED
+        self.state: GameState = GameState.INITIALIZED
 
 
 class Cell:
