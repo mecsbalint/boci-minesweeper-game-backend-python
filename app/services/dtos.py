@@ -47,13 +47,19 @@ class CellDto:
     def __get_state(cell: Cell, game_state: GameState) -> str:
         match game_state:
             case GameState.INITIALIZED:
-                return "hidden"
+                return CellDto.__get_state_for_initialized(cell)
             case GameState.STARTED:
                 return CellDto.__get_state_for_started(cell)
             case GameState.FINISHED_WON:
                 return CellDto.__get_state_for_finished_won(cell)
             case GameState.FINISHED_LOST:
                 return CellDto.__get_state_for_finished_lost(cell)
+            
+    @staticmethod
+    def __get_state_for_initialized(cell: Cell) -> str:
+        if cell.is_flagged:
+            return "flagged"
+        return "hidden"
 
     @staticmethod
     def __get_state_for_started(cell: Cell) -> str:

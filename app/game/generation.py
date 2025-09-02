@@ -1,9 +1,9 @@
 from .models import Coordinates, Game, Cell
 from random import choice
 
-NUM_OF_ROWS = 10
-NUM_OF_COLUMNS = 10
-NUM_OF_MINES = 5
+NUM_OF_ROWS = 8
+NUM_OF_COLUMNS = 8
+NUM_OF_MINES = 10
 
 
 def generate_game() -> Game:

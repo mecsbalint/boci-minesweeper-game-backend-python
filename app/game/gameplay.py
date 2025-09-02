@@ -4,6 +4,8 @@ from typing import Iterable
 
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates) -> None:
+    if not game.cells[action_coordinates].is_hidden:
+        return None
     match action_type:
         case ActionType.REVEAL:
             handle_reveal_action(game, action_coordinates)
@@ -35,20 +37,19 @@ def handle_flag_action(game: Game, action_coordinates: Coordinates) -> None:
 
 
 def __reveal_cell_block(game: Game, starting_cell: Cell) -> None:
-    cells_to_check: set[Cell] = {starting_cell}
+    cells_to_check = {starting_cell}
 
     while len(cells_to_check) > 0:
+        cells_to_check_next: set[Cell] = set()
         for cell in cells_to_check:
             cell.is_hidden = False
             if cell.num_neighbor_mines == 0:
-                cells_to_check_next: set[Cell] = set([
+                cells_to_check_next.update([
                     neighbor
                     for neighbor in cell.neighbors
                     if neighbor.is_hidden and not neighbor.is_flagged
                     ])
-                cells_to_check = cells_to_check_next
-            else:
-                cells_to_check.clear()
+        cells_to_check = cells_to_check_next
 
 
 def __check_for_winning(cells: Iterable[Cell]) -> bool:
