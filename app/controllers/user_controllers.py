@@ -1,8 +1,10 @@
+import datetime
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app import CustomFlask
+from app.custom_flask import CustomFlask
 from app.services.dtos import JwtResponseDto
 from app.services import user_service
+from dataclasses import asdict
 
 
 def init_user_endpoints(app: CustomFlask):
@@ -20,9 +22,10 @@ def init_user_endpoints(app: CustomFlask):
 
         user_id, user_name = validation_response
 
-        access_token = create_access_token(identity=user_id)
+        expires = datetime.timedelta(hours=1)
+        access_token = create_access_token(identity=str(user_id), expires_delta=expires)
         response_obj = JwtResponseDto(access_token, user_name)
-        return jsonify(response_obj)
+        return jsonify(asdict(response_obj))
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
@@ -31,7 +34,7 @@ def init_user_endpoints(app: CustomFlask):
         email = data.get("email")
         password = data.get("password")
 
-        is_succesful = user_service.create_user(name, email, password)
-        status_code = 201 if is_succesful else 409
+        is_successful = user_service.create_user(name, email, password)
+        status_code = 201 if is_successful else 409
 
-        return jsonify({"is_succesful": is_succesful}), status_code
+        return jsonify({"is_successful": is_successful}), status_code

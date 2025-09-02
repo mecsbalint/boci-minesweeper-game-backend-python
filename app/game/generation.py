@@ -1,9 +1,9 @@
 from .models import Coordinates, Game, Cell
 from random import choice
 
-NUM_OF_ROWS = 10
-NUM_OF_COLUMNS = 10
-NUM_OF_MINES = 5
+NUM_OF_ROWS = 8
+NUM_OF_COLUMNS = 8
+NUM_OF_MINES = 10
 
 
 def generate_game() -> Game:
@@ -36,8 +36,11 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         cell.is_mine = True
         valid_cells.remove(cell)
 
+    for cell in cells.values():
+        cell.num_neighbor_mines = cell.count_neighbor_mines()
+
 
 def __is_neighbor(coordinates_1: Coordinates, coordinates_2: Coordinates) -> bool:
     (x_1, y_1) = coordinates_1.get_coordinates()
     (x_2, y_2) = coordinates_2.get_coordinates()
-    return (x_1 - x_2) * -1 in [0, 1] and (y_1 - y_2) * -1 in [0, 1] and coordinates_1 != coordinates_2
+    return abs(x_1 - x_2) <= 1 and abs(y_1 - y_2) <= 1 and coordinates_1 != coordinates_2

@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-def validate_user(email: str, password: str) -> tuple[str, str] | None:
+def validate_user(email: str, password: str) -> tuple[int, str] | None:
     user = get_user_by_email(email)
     if user:
         is_password_valid = check_password_hash(user.password, password)
@@ -33,5 +33,5 @@ def create_user(name: str, email: str, password: str) -> bool:
         return True
     except IntegrityError:
         db.session.rollback()
-        print("Constraint violated while saving User")
+        print("Constraint is violated while saving User")
         return False

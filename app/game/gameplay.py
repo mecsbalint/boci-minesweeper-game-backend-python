@@ -4,6 +4,8 @@ from typing import Iterable
 
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates) -> None:
+    if not game.cells[action_coordinates].is_hidden:
+        return None
     match action_type:
         case ActionType.REVEAL:
             handle_reveal_action(game, action_coordinates)
@@ -21,8 +23,8 @@ def handle_reveal_action(game: Game, action_coordinates: Coordinates) -> None:
     if action_cell.is_mine:
         game.state = GameState.FINISHED_LOST
     else:
-        reveal_cell_block(game, action_cell)
-        if check_for_winning(game.cells.values()):
+        __reveal_cell_block(game, action_cell)
+        if __check_for_winning(game.cells.values()):
             game.state = GameState.FINISHED_WON
 
 
@@ -34,18 +36,14 @@ def handle_flag_action(game: Game, action_coordinates: Coordinates) -> None:
         action_cell.is_flagged = True
 
 
-def reveal_cell_block(game: Game, starting_cell: Cell) -> None:
-    cells_to_check = set([
-        neighbor
-        for neighbor in starting_cell.neighbors
-        if neighbor.is_hidden and not neighbor.is_flagged
-        ])
+def __reveal_cell_block(game: Game, starting_cell: Cell) -> None:
+    cells_to_check = {starting_cell}
 
     while len(cells_to_check) > 0:
         cells_to_check_next: set[Cell] = set()
         for cell in cells_to_check:
             cell.is_hidden = False
-            if cell.count_neighbor_mines == 0:
+            if cell.num_neighbor_mines == 0:
                 cells_to_check_next.update([
                     neighbor
                     for neighbor in cell.neighbors
@@ -54,7 +52,7 @@ def reveal_cell_block(game: Game, starting_cell: Cell) -> None:
         cells_to_check = cells_to_check_next
 
 
-def check_for_winning(cells: Iterable[Cell]) -> bool:
+def __check_for_winning(cells: Iterable[Cell]) -> bool:
     for cell in cells:
         if cell.is_hidden and not cell.is_mine:
             return False

@@ -1,4 +1,4 @@
-from flask import Flask
+from app.custom_flask import CustomFlask
 from app.controllers import init_endpoints
 from app.extensions import db
 from app.database import create_tables
@@ -6,13 +6,6 @@ from dotenv import load_dotenv
 import os
 from flask_jwt_extended import JWTManager
 from app.security.jwt import init_flask_jwt  # pyright: ignore[reportUnknownVariableType]
-from app.services.game_session_manager import GameSessionManager
-
-
-class CustomFlask(Flask):
-    def __init__(self, *args, **kwargs):  # type: ignore
-        super().__init__(*args, **kwargs)  # type: ignore
-        self.game_sessions: GameSessionManager = GameSessionManager()
 
 
 def create_app():
