@@ -29,7 +29,7 @@ def init_game_endpoints(app: CustomFlask):
     def get_current_game():  # pyright: ignore[reportUnusedFunction]
         game_sessions = cast(CustomFlask, current_app).game_sessions
         game_state_dto = game_service.get_active_game(current_user, game_sessions)
-        return jsonify({asdict(game_state_dto)}), 200
+        return jsonify(asdict(game_state_dto)), 200
 
     @app.route("/api/game", methods=["PATCH"])
     @jwt_required()

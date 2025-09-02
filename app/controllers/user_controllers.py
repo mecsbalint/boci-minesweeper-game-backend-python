@@ -1,3 +1,4 @@
+import datetime
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
 from app.custom_flask import CustomFlask
@@ -21,7 +22,8 @@ def init_user_endpoints(app: CustomFlask):
 
         user_id, user_name = validation_response
 
-        access_token = create_access_token(identity=str(user_id))
+        expires = datetime.timedelta(hours=1)
+        access_token = create_access_token(identity=str(user_id), expires_delta=expires)
         response_obj = JwtResponseDto(access_token, user_name)
         return jsonify(asdict(response_obj))
 
