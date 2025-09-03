@@ -1,8 +1,8 @@
+from app.cache import init_cache
 from app.custom_flask import CustomFlask
 from app.controllers import init_endpoints
-from app.extensions import db, jwt
 from app.database import init_db
-from app.security.jwt import init_flask_jwt  # pyright: ignore[reportUnknownVariableType]
+from app.security import init_security
 
 
 def create_app():
@@ -11,8 +11,10 @@ def create_app():
 
     init_endpoints(app)
 
-    init_flask_jwt(app, jwt)
+    init_security(app)
 
-    init_db(app, db)
+    init_db(app)
+
+    init_cache(app)
 
     return app
