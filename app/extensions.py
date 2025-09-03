@@ -1,7 +1,9 @@
-
 from flask_sqlalchemy import SQLAlchemy
-import redis
+from flask_jwt_extended import JWTManager
+from flask_caching import Cache
 
 db = SQLAlchemy()
 
-r = redis.Redis(db=1)
+jwt = JWTManager()
+
+cache = Cache()
