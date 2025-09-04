@@ -1,11 +1,11 @@
 from dotenv import load_dotenv
 from app.extensions import cache
-from app.custom_flask import CustomFlask
+from flask import Flask
 from os import getenv
 from typing import cast
 
 
-def init_cache(app: CustomFlask):
+def init_cache(app: Flask):
     load_dotenv()
 
     redis_host = cast(str, getenv("REDIS_HOST"))
@@ -13,7 +13,7 @@ def init_cache(app: CustomFlask):
     redis_db = int(cast(str, getenv("REDIS_DB")))
     cache_default_timeout = int(cast(str, getenv("CACHE_DEFAULT_TIMEOUT")))
 
-    app.config["CACHE_TYPE"] = "redis"
+    app.config["CACHE_TYPE"] = "RedisCache"
     app.config["CACHE_REDIS_HOST"] = redis_host
     app.config["CACHE_REDIS_PORT"] = redis_port
     app.config["CACHE_REDIS_DB"] = redis_db

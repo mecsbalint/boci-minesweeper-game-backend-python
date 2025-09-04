@@ -1,10 +1,10 @@
-from app.custom_flask import CustomFlask
+from flask import Flask
 from app.extensions import db
 import os
 from dotenv import load_dotenv
 
 
-def init_db(app: CustomFlask):
+def init_db(app: Flask):
     load_dotenv()
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")

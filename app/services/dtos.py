@@ -54,7 +54,7 @@ class CellDto:
                 return CellDto.__get_state_for_finished_won(cell)
             case GameState.FINISHED_LOST:
                 return CellDto.__get_state_for_finished_lost(cell)
-            
+
     @staticmethod
     def __get_state_for_initialized(cell: Cell) -> str:
         if cell.is_flagged:

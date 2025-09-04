@@ -1,11 +1,11 @@
 from typing import Any
 import os
 from dotenv import load_dotenv
-from app.custom_flask import CustomFlask
+from flask import Flask
 from app.extensions import jwt
 
 
-def init_flask_jwt(app: CustomFlask):
+def init_flask_jwt(app: Flask):
     load_dotenv()
 
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
