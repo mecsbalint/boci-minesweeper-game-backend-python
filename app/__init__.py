@@ -1,26 +1,20 @@
-from app.custom_flask import CustomFlask
+from flask import Flask
+from app.cache import init_cache
 from app.controllers import init_endpoints
-from app.extensions import db
-from app.database import create_tables
-from dotenv import load_dotenv
-import os
-from flask_jwt_extended import JWTManager
-from app.security.jwt import init_flask_jwt  # pyright: ignore[reportUnknownVariableType]
+from app.database import init_db
+from app.security import init_security
 
 
 def create_app():
-    load_dotenv()
 
-    app = CustomFlask(__name__)
+    app = Flask(__name__)
 
     init_endpoints(app)
 
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-    jwt = JWTManager(app)
-    init_flask_jwt(jwt)
+    init_security(app)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
-    db.init_app(app)
-    create_tables(app, db)
+    init_db(app)
+
+    init_cache(app)
 
     return app

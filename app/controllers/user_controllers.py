@@ -1,13 +1,12 @@
 import datetime
-from flask import request, jsonify
+from flask import Flask, request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app.custom_flask import CustomFlask
-from app.services.dtos import JwtResponseDto
-from app.services import user_service
+from app.service.dtos import JwtResponseDto
+from app.service import user_service
 from dataclasses import asdict
 
 
-def init_user_endpoints(app: CustomFlask):
+def init_user_endpoints(app: Flask):
 
     @app.route("/api/login", methods=["POST"])
     def login():  # pyright: ignore[reportUnusedFunction]
