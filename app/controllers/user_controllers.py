@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, abort, request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app.dtos import JwtResponseDto
+from app.dto.dtos import JwtResponseDto
 from app.service import user_service
 from dataclasses import asdict
 

@@ -1,7 +1,7 @@
 from app.game.gameplay import handle_player_step
 from app.game.models import ActionType, Coordinates, Game, GameState
 from app.game.generation import generate_game
-from ..dtos import GameDto, PlayerMoveDto
+from ..dto.dtos import GameDto, PlayerMoveDto
 from app.extensions import cache
 
 
