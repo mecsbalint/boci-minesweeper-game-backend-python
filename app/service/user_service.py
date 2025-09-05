@@ -1,16 +1,17 @@
 from typing import cast
+from app.dto.dtos import UserDto
 from app.extensions import db
 from app.database.db_models import User
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-def validate_user(email: str, password: str) -> tuple[int, str] | None:
+def validate_user(email: str, password: str) -> UserDto:
     user = get_user_by_email(email)
     if user:
         is_password_valid = check_password_hash(user.password, password)
         if is_password_valid:
-            return (user.id, user.name)
+            return UserDto(user.id, user.name)
     return None
 
 

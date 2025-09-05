@@ -9,6 +9,12 @@ class JwtResponseDto:
     name: str
 
 
+@dataclass
+class UserDto:
+    id: int
+    name: str
+
+
 class PlayerMoveDto:
     def __init__(self, coordinates: dict[Literal["x", "y"], int], action_type: Literal["REVEAL", "FLAG"]):
         self.coordinates = coordinates

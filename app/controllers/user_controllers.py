@@ -10,20 +10,22 @@ def init_user_endpoints(app: Flask):
 
     @app.route("/api/login", methods=["POST"])
     def login():  # pyright: ignore[reportUnusedFunction]
-        data = request.get_json()
+        data: dict[str, str] | None = request.get_json()
+
+        if not isinstance(data, dict):
+            abort(400, description="Invalid request body")
+
         email = data.get("email")
         password = data.get("password")
 
-        validation_response = user_service.validate_user(email, password)
+        if not email or not password:
+            abort(400, description="Email and password are required")
 
-        if not validation_response:
-            return jsonify({"msg": "Bad username or password"}), 401
-
-        user_id, user_name = validation_response
+        user = user_service.validate_user(email, password)
 
         expires = datetime.timedelta(hours=1)
-        access_token = create_access_token(identity=str(user_id), expires_delta=expires)
-        response_obj = JwtResponseDto(access_token, user_name)
+        access_token = create_access_token(identity=str(user.id), expires_delta=expires)
+        response_obj = JwtResponseDto(access_token, user.name)
         return jsonify(asdict(response_obj))
 
     @app.route("/api/registration", methods=["POST"])
