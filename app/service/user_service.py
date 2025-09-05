@@ -1,5 +1,5 @@
 from typing import cast
-from app.dto.dtos import UserDto
+from app.dto.user_dto import UserDto
 from app.extensions import db
 from app.database.db_models import User
 from sqlalchemy.exc import IntegrityError

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
-from app.dto.dtos import PlayerMoveDto
+from app.dto.game_dto import PlayerMoveDto
 from app.service import game_service
 from dataclasses import asdict
 
