@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, abort, request, jsonify
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
 from app.service.dtos import JwtResponseDto
 from app.service import user_service
@@ -37,3 +37,7 @@ def init_user_endpoints(app: Flask):
         status_code = 201 if is_successful else 409
 
         return jsonify({"is_successful": is_successful}), status_code
+
+    @app.route("/api/test")
+    def test_route():  # pyright: ignore[reportUnusedFunction]
+        abort(404)
