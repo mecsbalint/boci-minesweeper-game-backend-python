@@ -1,25 +1,23 @@
 import datetime
-from flask import Flask, abort, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
 from app.service import user_service
 from dataclasses import asdict
-from app.dto.user_dto import JwtResponseDto
+from app.dto.user_dto import JwtResponseDto, UserLoginDto, UserRegistrationDto
+from typing import Any
+from app.validation.validate_request import validate_request_body
 
 
 def init_user_endpoints(app: Flask):
 
     @app.route("/api/login", methods=["POST"])
     def login():  # pyright: ignore[reportUnusedFunction]
-        data: dict[str, str] | None = request.get_json()
+        payload: dict[Any, Any] = request.get_json()
 
-        if not isinstance(data, dict):
-            abort(400, description="Invalid request body")
+        data = validate_request_body(payload, UserLoginDto, ("email", str), ("password", str))
 
-        email = data.get("email")
-        password = data.get("password")
-
-        if not email or not password:
-            abort(400, description="Email and password are required")
+        email = data.email
+        password = data.password
 
         user = user_service.validate_user(email, password)
 
@@ -30,12 +28,14 @@ def init_user_endpoints(app: Flask):
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
-        data = request.get_json()
-        name = data.get("name")
-        email = data.get("email")
-        password = data.get("password")
+        payload: dict[Any, Any] = request.get_json()
 
-        is_successful = user_service.create_user(name, email, password)
-        status_code = 201 if is_successful else 409
+        data = validate_request_body(payload, UserRegistrationDto, ("name", str), ("email", str), ("password", str))
 
-        return jsonify({"is_successful": is_successful}), status_code
+        name = data.name
+        email = data.email
+        password = data.password
+
+        user_service.create_user(name, email, password)
+
+        return Response(status=201)

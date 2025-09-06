@@ -3,10 +3,10 @@ from typing import Literal
 from dataclasses import dataclass
 
 
+@dataclass
 class PlayerMoveDto:
-    def __init__(self, coordinates: dict[Literal["x", "y"], int], action_type: Literal["REVEAL", "FLAG"]):
-        self.coordinates = coordinates
-        self.action_type = action_type
+    coordinates: dict[Literal["x", "y"], int]
+    action_type: Literal["REVEAL", "FLAG"]
 
 
 @dataclass
