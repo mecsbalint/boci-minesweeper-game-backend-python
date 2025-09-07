@@ -14,10 +14,10 @@ def init_user_endpoints(app: Flask):
     def login():  # pyright: ignore[reportUnusedFunction]
         payload: dict[Any, Any] = request.get_json()
 
-        data = validate_request_body(payload, UserLoginDto, ("email", str), ("password", str))
+        user_login_dto = validate_request_body(payload, UserLoginDto, ("email", [str]), ("password", [str]))
 
-        email = data.email
-        password = data.password
+        email = user_login_dto.email
+        password = user_login_dto.password
 
         user = user_service.validate_user(email, password)
 
@@ -30,11 +30,11 @@ def init_user_endpoints(app: Flask):
     def registration():  # pyright: ignore[reportUnusedFunction]
         payload: dict[Any, Any] = request.get_json()
 
-        data = validate_request_body(payload, UserRegistrationDto, ("name", str), ("email", str), ("password", str))
+        user_registration_dto = validate_request_body(payload, UserRegistrationDto, ("name", [str]), ("email", [str]), ("password", [str]))
 
-        name = data.name
-        email = data.email
-        password = data.password
+        name = user_registration_dto.name
+        email = user_registration_dto.email
+        password = user_registration_dto.password
 
         user_service.create_user(name, email, password)
 

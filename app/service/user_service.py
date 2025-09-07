@@ -25,7 +25,7 @@ def get_user_by_id(id: int) -> User | None:
     return user
 
 
-def create_user(name: str, email: str, password: str) -> bool:
+def create_user(name: str, email: str, password: str) -> None:
     try:
         password_hashed = generate_password_hash(password)
         user_new = User(name, email, password_hashed)
