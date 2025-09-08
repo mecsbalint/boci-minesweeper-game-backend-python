@@ -1,8 +1,7 @@
 import datetime
 from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app.service import user_service
-from dataclasses import asdict
+from app.service.user_service import validate_user, create_user
 from app.dto.user_dto import JwtResponseDto, UserLoginDto, UserRegistrationDto
 from typing import Any
 
@@ -17,12 +16,12 @@ def init_user_endpoints(app: Flask):
         email = user_login_dto.email
         password = user_login_dto.password
 
-        user = user_service.validate_user(email, password)
+        user = validate_user(email, password)
 
         expires = datetime.timedelta(hours=1)
         access_token = create_access_token(identity=str(user.id), expires_delta=expires)
         response_obj = JwtResponseDto(jwt=access_token, name=user.name)
-        return jsonify(asdict(response_obj))
+        return jsonify(response_obj.model_dump())
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
@@ -34,6 +33,6 @@ def init_user_endpoints(app: Flask):
         email = user_registration_dto.email
         password = user_registration_dto.password
 
-        user_service.create_user(name, email, password)
+        create_user(name, email, password)
 
         return Response(status=201)

@@ -3,7 +3,6 @@ from flask import Flask, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
 from app.dto.game_dto import PlayerMoveDto
 from app.service import game_service
-from dataclasses import asdict
 
 
 def init_game_endpoints(app: Flask):
@@ -25,7 +24,7 @@ def init_game_endpoints(app: Flask):
     @jwt_required()
     def get_current_game():  # pyright: ignore[reportUnusedFunction]
         game_state_dto = game_service.get_active_game(current_user)
-        return jsonify(asdict(game_state_dto)), 200
+        return jsonify(game_state_dto.model_dump()), 200
 
     @app.route("/api/game", methods=["PATCH"])
     @jwt_required()
@@ -35,4 +34,4 @@ def init_game_endpoints(app: Flask):
         player_move_dto = PlayerMoveDto(**payload)
 
         game_state_dto = game_service.make_player_move(current_user, player_move_dto)
-        return jsonify(asdict(game_state_dto)), 200
+        return jsonify(game_state_dto.model_dump()), 200

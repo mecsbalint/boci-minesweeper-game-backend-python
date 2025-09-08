@@ -11,7 +11,7 @@ def validate_user(email: str, password: str) -> UserDto:
     if user:
         is_password_valid = check_password_hash(user.password, password)
         if is_password_valid:
-            return UserDto(user.id, user.name)
+            return UserDto(id=user.id, name=user.name)
     return None
 
 
