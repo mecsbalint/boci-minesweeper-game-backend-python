@@ -1,11 +1,9 @@
-from typing import Any, Literal
+from typing import Any
 from flask import Flask, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
 from app.dto.game_dto import PlayerMoveDto
 from app.service import game_service
 from dataclasses import asdict
-
-from app.validation.validate_request import validate_request_body
 
 
 def init_game_endpoints(app: Flask):
@@ -34,7 +32,7 @@ def init_game_endpoints(app: Flask):
     def make_move():  # pyright: ignore[reportUnusedFunction]
         payload: dict[Any, Any] = request.get_json()
 
-        player_move_dto = validate_request_body(payload, PlayerMoveDto, ("coordinates", [dict]), ("action_type", str))
+        player_move_dto = PlayerMoveDto(**payload)
 
         game_state_dto = game_service.make_player_move(current_user, player_move_dto)
         return jsonify(asdict(game_state_dto)), 200

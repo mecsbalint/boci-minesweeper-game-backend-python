@@ -1,26 +1,22 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class JwtResponseDto:
+class JwtResponseDto(BaseModel):
     jwt: str
     name: str
 
 
-@dataclass
-class UserDto:
+class UserDto(BaseModel):
     id: int
     name: str
 
 
-@dataclass
-class UserRegistrationDto:
+class UserRegistrationDto(BaseModel):
     name: str
     email: str
     password: str
 
 
-@dataclass
-class UserLoginDto:
+class UserLoginDto(BaseModel):
     email: str
     password: str

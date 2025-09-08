@@ -1,16 +1,14 @@
 from app.game.models import Game, Cell, GameState
 from typing import Literal
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class PlayerMoveDto:
+class PlayerMoveDto(BaseModel):
     coordinates: dict[Literal["x", "y"], int]
     action_type: Literal["REVEAL", "FLAG"]
 
 
-@dataclass
-class GameDto:
+class GameDto(BaseModel):
     state: str
     rows: int
     columns: int
@@ -29,8 +27,7 @@ class GameDto:
             )
 
 
-@dataclass
-class CellDto:
+class CellDto(BaseModel):
     state: str
 
     @classmethod
