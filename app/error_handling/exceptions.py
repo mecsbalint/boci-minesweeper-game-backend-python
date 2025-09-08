@@ -1,6 +1,9 @@
 
+from app.dto.exception_dto import ExceptionDto
+
+
 class ApiException(Exception):
-    def __init__(self, status: int, *errors: dict[str, str]) -> None:
+    def __init__(self, status: int, *errors: ExceptionDto) -> None:
         super().__init__()
         self._status = status
         self._errors = errors
