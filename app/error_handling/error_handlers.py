@@ -21,8 +21,10 @@ def init_error_handlers(app: Flask):
     def handle_app_exception(exception: ApiException):  # pyright: ignore[reportUnusedFunction]
         return jsonify(exception.errors), exception.status
 
-    @app.errorhandler(HTTPException)
-    def handle_http_exception(exception: HTTPException):  # pyright: ignore[reportUnusedFunction]
-        response_code = exception.code if exception.code else 500
-        description = exception.description if exception.description else "Internal Server Error"
-        return jsonify([{"code": f"HTTP_{type(exception).__name__}", "message": description}]), response_code
+    app.register_error_handler(HTTPException, http_exception_handler)
+
+
+def http_exception_handler(exception: HTTPException):
+    response_code = exception.code if exception.code else 500
+    description = exception.description if exception.description else "Internal Server Error"
+    return jsonify([{"code": f"HTTP_{type(exception).__name__}", "message": description}]), response_code
