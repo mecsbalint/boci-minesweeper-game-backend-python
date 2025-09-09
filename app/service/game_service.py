@@ -1,3 +1,4 @@
+from app.cache import handle_cache_errors
 from app.game.gameplay import handle_player_step
 from app.game.models import ActionType, Coordinates, Game, GameState
 from app.game.generation import generate_game
@@ -5,15 +6,18 @@ from ..dto.game_dto import GameDto, PlayerMoveDto
 from app.extensions import cache
 
 
+@handle_cache_errors
 def create_game(user_id: int):
     game: Game = generate_game()
     cache.set(user_id, game)  # pyright: ignore[reportUnknownMemberType]
 
 
+@handle_cache_errors
 def check_active_game(user_id: int) -> bool:
     return cache.has(user_id)  # pyright: ignore[reportUnknownMemberType]
 
 
+@handle_cache_errors
 def get_active_game(user_id: int) -> GameDto:
     game = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
     if not game:
@@ -21,6 +25,7 @@ def get_active_game(user_id: int) -> GameDto:
     return GameDto.from_game(game)
 
 
+@handle_cache_errors
 def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
     game = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
     action_type = ActionType[player_move.action_type]

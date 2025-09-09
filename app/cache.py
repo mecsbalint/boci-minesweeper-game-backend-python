@@ -1,8 +1,14 @@
+import logging
 from dotenv import load_dotenv
+from app.error_handling.exceptions import CacheConnectionException, CacheOperationException
 from app.extensions import cache
 from flask import Flask
 from os import getenv
-from typing import cast
+from typing import Callable, cast, Any
+from redis.exceptions import ConnectionError, TimeoutError, ResponseError, InvalidResponse
+from pickle import PickleError, UnpicklingError
+
+logger = logging.getLogger(__name__)
 
 
 def init_cache(app: Flask):
@@ -20,3 +26,20 @@ def init_cache(app: Flask):
     app.config["CACHE_DEFAULT_TIMEOUT"] = cache_default_timeout
 
     cache.init_app(app)  # pyright: ignore[reportUnknownMemberType]
+
+
+def handle_cache_errors(func: Callable[..., Any]):
+
+    def handle_cache_errors_wrapper(*args: Any, **kwargs: Any):
+        try:
+            return func(*args, **kwargs)
+        except (ConnectionError, TimeoutError, ResponseError, InvalidResponse, TypeError, PickleError, UnpicklingError, ValueError) as e:
+            logger.error(f"Cache operation failed in function {func.__name__} with args={args}, kwargs={kwargs}: {str(e)}")
+            logger.debug("Full traceback:", exc_info=True)
+
+            if isinstance(e, (ConnectionError, TimeoutError, ResponseError, InvalidResponse)):
+                raise CacheConnectionException()
+            else:
+                raise CacheOperationException()
+
+    return handle_cache_errors_wrapper
