@@ -36,3 +36,16 @@ class CacheConnectionException(CacheException):
             code="CACHE_CONNECTION_ERROR",
             message="Cache service is currently unavailable")
         super().__init__(error)
+
+
+class GameException(ApiException):
+    def __init__(self, *errors: ExceptionDto) -> None:
+        super().__init__(500, *errors)
+
+
+class InvalidMapException(GameException):
+    def __init__(self, *errors: ExceptionDto) -> None:
+        error = ExceptionDto(
+            code="GAME_MAP_ERROR",
+            message="An error occured during map generation or initialization")
+        super().__init__(error)

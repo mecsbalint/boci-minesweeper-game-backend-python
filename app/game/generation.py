@@ -1,3 +1,4 @@
+from app.error_handling.exceptions import InvalidMapException
 from .models import Coordinates, Game, Cell
 from random import choice
 
@@ -30,6 +31,9 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         for cell_coor, cell in cells.items()
         if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor
         ]
+
+    if NUM_OF_MINES > len(valid_cells):
+        raise InvalidMapException()
 
     for _ in range(NUM_OF_MINES):
         cell = choice(valid_cells)
