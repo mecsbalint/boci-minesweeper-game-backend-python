@@ -1,11 +1,14 @@
+from app.error_handling.exceptions import InvalidPlayerMoveException
 from app.game.generation import populate_with_mines
 from app.game.models import ActionType, Cell, Game, Coordinates, GameState
 from typing import Iterable
 
 
-def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates) -> None:
-    if not game.cells[action_coordinates].is_hidden:
-        return None
+def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates):
+    action_cell = game.cells.get(action_coordinates)
+    if not action_cell or not action_cell.is_hidden:
+        raise InvalidPlayerMoveException()
+
     match action_type:
         case ActionType.REVEAL:
             handle_reveal_action(game, action_coordinates)

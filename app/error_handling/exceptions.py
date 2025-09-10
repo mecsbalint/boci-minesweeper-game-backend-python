@@ -51,6 +51,14 @@ class InvalidMapException(GameException):
         super().__init__(500, error)
 
 
+class InvalidPlayerMoveException(GameException):
+    def __init__(self) -> None:
+        error = ExceptionDto(
+            code="GAME_INVALID_PLAYER_MOVE",
+            message="The player's move can't be made in the current game")
+        super().__init__(400, error)
+
+
 class GameNotFoundException(GameException):
     def __init__(self) -> None:
         error = ExceptionDto(

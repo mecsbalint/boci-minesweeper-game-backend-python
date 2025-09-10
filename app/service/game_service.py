@@ -45,6 +45,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
         raise GameNotFoundException()
 
     handle_player_step(game, action_type, action_coordinates)
+
     if game.state == GameState.FINISHED_LOST or game.state == GameState.FINISHED_WON:
         cache.delete(user_id)  # pyright: ignore[reportUnknownMemberType]
     else:
