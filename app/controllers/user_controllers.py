@@ -1,39 +1,38 @@
 import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import create_access_token  # pyright: ignore[reportUnknownVariableType]
-from app.service.dtos import JwtResponseDto
-from app.service import user_service
-from dataclasses import asdict
+from app.service.user_service import validate_user, create_user
+from app.dto.user_dto import JwtResponseDto, UserLoginDto, UserRegistrationDto
+from typing import Any
 
 
 def init_user_endpoints(app: Flask):
 
     @app.route("/api/login", methods=["POST"])
     def login():  # pyright: ignore[reportUnusedFunction]
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
+        payload: dict[Any, Any] = request.get_json()
 
-        validation_response = user_service.validate_user(email, password)
+        user_login_dto = UserLoginDto(**payload)
+        email = user_login_dto.email
+        password = user_login_dto.password
 
-        if not validation_response:
-            return jsonify({"msg": "Bad username or password"}), 401
-
-        user_id, user_name = validation_response
+        user = validate_user(email, password)
 
         expires = datetime.timedelta(hours=1)
-        access_token = create_access_token(identity=str(user_id), expires_delta=expires)
-        response_obj = JwtResponseDto(access_token, user_name)
-        return jsonify(asdict(response_obj))
+        access_token = create_access_token(identity=str(user.id), expires_delta=expires)
+        response_obj = JwtResponseDto(jwt=access_token, name=user.name)
+        return jsonify(response_obj.model_dump())
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
-        data = request.get_json()
-        name = data.get("name")
-        email = data.get("email")
-        password = data.get("password")
+        payload: dict[Any, Any] = request.get_json()
 
-        is_successful = user_service.create_user(name, email, password)
-        status_code = 201 if is_successful else 409
+        user_registration_dto = UserRegistrationDto(**payload)
 
-        return jsonify({"is_successful": is_successful}), status_code
+        name = user_registration_dto.name
+        email = user_registration_dto.email
+        password = user_registration_dto.password
+
+        create_user(name, email, password)
+
+        return Response(status=201)

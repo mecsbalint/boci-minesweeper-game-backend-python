@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
+from app.error_handling.exceptions import InvalidMapException
+
 
 class GameState(Enum):
     INITIALIZED = auto()
@@ -27,8 +29,20 @@ class Game:
     def __init__(self, rows: int, columns: int, cells: dict[Coordinates, "Cell"]):
         self.rows = rows
         self.columns = columns
-        self.cells = cells
+        self._cells = cells
         self.state: GameState = GameState.INITIALIZED
+
+    @property
+    def cells(self):
+        return self._cells
+
+    @cells.setter
+    def cells(self, cells: dict[Coordinates, "Cell"]):
+        if len(cells) != self.rows * self.columns:
+            raise InvalidMapException()
+        for coor, cell in cells.items():
+            if (not (0 <= coor.x <= self.rows and 0 <= coor.y <= self.columns)):
+                raise InvalidMapException()
 
 
 class Cell:
@@ -39,6 +53,3 @@ class Cell:
         self.is_hidden = True
         self.is_flagged = False
         self.num_neighbor_mines = 0
-
-    def count_neighbor_mines(self) -> int:
-        return len(list(filter(lambda cell: cell.is_mine, self.neighbors)))

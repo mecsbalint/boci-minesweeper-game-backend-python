@@ -1,36 +1,53 @@
+from app.cache import handle_cache_errors
+from app.error_handling.exceptions import UserNotFoundException, GameNotFoundException
 from app.game.gameplay import handle_player_step
 from app.game.models import ActionType, Coordinates, Game, GameState
 from app.game.generation import generate_game
-from .dtos import GameDto, PlayerMoveDto
+from app.service.user_service import get_user_by_id
+from ..dto.game_dto import GameDto, PlayerMoveDto
 from app.extensions import cache
 
 
+@handle_cache_errors
 def create_game(user_id: int):
+    if not get_user_by_id(user_id):
+        raise UserNotFoundException("id")
     game: Game = generate_game()
-    cache.set(user_id, game)
+    cache.set(user_id, game)  # pyright: ignore[reportUnknownMemberType]
 
 
+@handle_cache_errors
 def check_active_game(user_id: int) -> bool:
-    return cache.has(user_id)
+    if not get_user_by_id(user_id):
+        raise UserNotFoundException("id")
+    return cache.has(user_id)  # pyright: ignore[reportUnknownMemberType]
 
 
-def get_active_game(user_id: int) -> GameDto | None:
-    game = cache.get(user_id)
+@handle_cache_errors
+def get_active_game(user_id: int) -> GameDto:
+    if not get_user_by_id(user_id):
+        raise UserNotFoundException("id")
+    game: Game | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
     if not game:
-        return None
+        raise GameNotFoundException()
     return GameDto.from_game(game)
 
 
-def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto | None:
-    game = cache.get(user_id)
+@handle_cache_errors
+def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
+    if not get_user_by_id(user_id):
+        raise UserNotFoundException("id")
+    game: Game | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
     action_type = ActionType[player_move.action_type]
     action_coordinates = Coordinates(**player_move.coordinates)
 
-    if game:
-        handle_player_step(game, action_type, action_coordinates)
-        if game.state == GameState.FINISHED_LOST or game.state == GameState.FINISHED_WON:
-            cache.delete(user_id)
-        else:
-            cache.set(user_id, game)
-        return GameDto.from_game(game)
-    return None
+    if not game:
+        raise GameNotFoundException()
+
+    handle_player_step(game, action_type, action_coordinates)
+
+    if game.state == GameState.FINISHED_LOST or game.state == GameState.FINISHED_WON:
+        cache.delete(user_id)  # pyright: ignore[reportUnknownMemberType]
+    else:
+        cache.set(user_id, game)  # pyright: ignore[reportUnknownMemberType]
+    return GameDto.from_game(game)

@@ -1,22 +1,14 @@
 from app.game.models import Game, Cell, GameState
 from typing import Literal
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class JwtResponseDto:
-    jwt: str
-    name: str
+class PlayerMoveDto(BaseModel):
+    coordinates: dict[Literal["x", "y"], int]
+    action_type: Literal["REVEAL", "FLAG"]
 
 
-class PlayerMoveDto:
-    def __init__(self, coordinates: dict[Literal["x", "y"], int], action_type: Literal["REVEAL", "FLAG"]):
-        self.coordinates = coordinates
-        self.action_type = action_type
-
-
-@dataclass
-class GameDto:
+class GameDto(BaseModel):
     state: str
     rows: int
     columns: int
@@ -35,8 +27,7 @@ class GameDto:
             )
 
 
-@dataclass
-class CellDto:
+class CellDto(BaseModel):
     state: str
 
     @classmethod
