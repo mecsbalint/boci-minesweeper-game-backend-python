@@ -49,3 +49,31 @@ class InvalidMapException(GameException):
             code="GAME_MAP_ERROR",
             message="An error occured during map generation or initialization")
         super().__init__(error)
+
+
+class UserException(ApiException):
+    pass
+
+
+class InvalidPasswordException(UserException):
+    def __init__(self) -> None:
+        error = ExceptionDto(
+            code="USER_INVALID_PASSWORD",
+            message="The password is incorrect")
+        super().__init__(401, error)
+
+
+class UserNotExistException(UserException):
+    def __init__(self) -> None:
+        error = ExceptionDto(
+            code="USER_NOT_EXIST",
+            message="There is no user registered with this e-mail address")
+        super().__init__(404, error)
+
+
+class UserAlreadyExistException(UserException):
+    def __init__(self) -> None:
+        error = ExceptionDto(
+            code="USER_EXIST",
+            message="A user has been already registered with this e-mail address")
+        super().__init__(409, error)

@@ -1,8 +1,8 @@
 from typing import cast
 from app.dto.user_dto import UserDto
+from app.error_handling.exceptions import InvalidPasswordException, UserNotExistException, UserAlreadyExistException
 from app.extensions import db
 from app.database.db_models import User
-from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -12,7 +12,10 @@ def validate_user(email: str, password: str) -> UserDto:
         is_password_valid = check_password_hash(user.password, password)
         if is_password_valid:
             return UserDto(id=user.id, name=user.name)
-    return None
+        else:
+            raise InvalidPasswordException()
+    else:
+        raise UserNotExistException()
 
 
 def get_user_by_email(email: str) -> User | None:
@@ -26,13 +29,9 @@ def get_user_by_id(id: int) -> User | None:
 
 
 def create_user(name: str, email: str, password: str) -> None:
-    try:
-        password_hashed = generate_password_hash(password)
-        user_new = User(name, email, password_hashed)
-        db.session.add(user_new)
-        db.session.commit()
-        return True
-    except IntegrityError:
-        db.session.rollback()
-        print("Constraint is violated while saving User")
-        return False
+    if get_user_by_email(email):
+        raise UserAlreadyExistException()
+    password_hashed = generate_password_hash(password)
+    user_new = User(name, email, password_hashed)
+    db.session.add(user_new)
+    db.session.commit()
