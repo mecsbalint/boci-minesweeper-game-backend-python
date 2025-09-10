@@ -39,16 +39,24 @@ class CacheConnectionException(CacheException):
 
 
 class GameException(ApiException):
-    def __init__(self, *errors: ExceptionDto) -> None:
-        super().__init__(500, *errors)
+    def __init__(self, status: int, *errors: ExceptionDto) -> None:
+        super().__init__(status, *errors)
 
 
 class InvalidMapException(GameException):
-    def __init__(self, *errors: ExceptionDto) -> None:
+    def __init__(self) -> None:
         error = ExceptionDto(
             code="GAME_MAP_ERROR",
             message="An error occured during map generation or initialization")
-        super().__init__(error)
+        super().__init__(500, error)
+
+
+class GameNotFoundException(GameException):
+    def __init__(self) -> None:
+        error = ExceptionDto(
+            code="GAME_NOT_FOUND",
+            message="There is no game of the user")
+        super().__init__(404, error)
 
 
 class UserException(ApiException):
@@ -63,11 +71,11 @@ class InvalidPasswordException(UserException):
         super().__init__(401, error)
 
 
-class UserNotExistException(UserException):
-    def __init__(self) -> None:
+class UserNotFoundException(UserException):
+    def __init__(self, identifier_type: str) -> None:
         error = ExceptionDto(
-            code="USER_NOT_EXIST",
-            message="There is no user registered with this e-mail address")
+            code="USER_NOT_FOUND",
+            message=f"There is no user registered with the provided {identifier_type}")
         super().__init__(404, error)
 
 

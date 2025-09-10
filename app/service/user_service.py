@@ -1,6 +1,6 @@
 from typing import cast
 from app.dto.user_dto import UserDto
-from app.error_handling.exceptions import InvalidPasswordException, UserNotExistException, UserAlreadyExistException
+from app.error_handling.exceptions import InvalidPasswordException, UserNotFoundException, UserAlreadyExistException
 from app.extensions import db
 from app.database.db_models import User
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -15,7 +15,7 @@ def validate_user(email: str, password: str) -> UserDto:
         else:
             raise InvalidPasswordException()
     else:
-        raise UserNotExistException()
+        raise UserNotFoundException("e-mail")
 
 
 def get_user_by_email(email: str) -> User | None:
