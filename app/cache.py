@@ -4,7 +4,7 @@ from app.error_handling.exceptions import CacheConnectionException, CacheOperati
 from app.extensions import cache
 from flask import Flask
 from os import getenv
-from typing import Callable, cast, Any
+from typing import Callable, ParamSpec, cast, Any, TypeVar
 from redis.exceptions import ConnectionError, TimeoutError, ResponseError, InvalidResponse
 from pickle import PickleError, UnpicklingError
 
@@ -28,9 +28,12 @@ def init_cache(app: Flask):
     cache.init_app(app)  # pyright: ignore[reportUnknownMemberType]
 
 
-def handle_cache_errors(func: Callable[..., Any]):
+R = TypeVar("R")
 
-    def handle_cache_errors_wrapper(*args: Any, **kwargs: Any):
+
+def handle_cache_errors(func: Callable[..., R]) -> Callable[..., R]:
+
+    def handle_cache_errors_wrapper(*args: Any, **kwargs: Any) -> R:
         try:
             return func(*args, **kwargs)
         except (ConnectionError, TimeoutError, ResponseError, InvalidResponse, TypeError, PickleError, UnpicklingError, ValueError) as e:
