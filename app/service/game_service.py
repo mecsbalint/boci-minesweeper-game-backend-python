@@ -37,12 +37,13 @@ def get_active_game(user_id: int) -> GameDto:
 def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
-    game: Game | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
-    action_type = ActionType[player_move.action_type]
-    action_coordinates = Coordinates(**player_move.coordinates)
 
+    game: Game | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
     if not game:
         raise GameNotFoundException()
+
+    action_type = ActionType[player_move.action_type]
+    action_coordinates = Coordinates(**player_move.coordinates)
 
     handle_player_step(game, action_type, action_coordinates)
 

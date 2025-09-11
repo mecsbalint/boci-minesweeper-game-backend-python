@@ -20,9 +20,9 @@ def user_dto():
 
 @patch("app.service.user_service.check_password_hash")
 @patch("app.service.user_service.get_user_by_email")
-def test__validate_user__user_exist_and_password_valid__return_UserDto(mock_get_user: MagicMock, mock_check_password: MagicMock, user: User, user_dto: UserDto):
-    mock_get_user.return_value = user
-    mock_check_password.return_value = True
+def test__validate_user__user_exist_and_password_valid__return_UserDto(get_user_mock: MagicMock, check_password_mock: MagicMock, user: User, user_dto: UserDto):
+    get_user_mock.return_value = user
+    check_password_mock.return_value = True
 
     expected_value = user_dto
     actual_value = validate_user("email", "password")
@@ -31,8 +31,8 @@ def test__validate_user__user_exist_and_password_valid__return_UserDto(mock_get_
 
 
 @patch("app.service.user_service.get_user_by_email")
-def test_validate_user__user_not_exist__raise_UserNotFoundException(mock_get_user: MagicMock):
-    mock_get_user.return_value = None
+def test_validate_user__user_not_exist__raise_UserNotFoundException(get_user_mock: MagicMock):
+    get_user_mock.return_value = None
 
     with pytest.raises(UserNotFoundException) as exc_info:
         validate_user("email", "password")
@@ -42,9 +42,9 @@ def test_validate_user__user_not_exist__raise_UserNotFoundException(mock_get_use
 
 @patch("app.service.user_service.check_password_hash")
 @patch("app.service.user_service.get_user_by_email")
-def test__validate_user__user_exist_and_password_invalid__raise_InvalidPasswordException(mock_get_user: MagicMock, mock_check_password: MagicMock, user: User):
-    mock_get_user.return_value = user
-    mock_check_password.return_value = False
+def test__validate_user__user_exist_and_password_invalid__raise_InvalidPasswordException(get_user_mock: MagicMock, check_password_mock: MagicMock, user: User):
+    get_user_mock.return_value = user
+    check_password_mock.return_value = False
 
     with pytest.raises(InvalidPasswordException) as exc_info:
         validate_user("email", "password")
@@ -55,23 +55,23 @@ def test__validate_user__user_exist_and_password_invalid__raise_InvalidPasswordE
 @patch("app.service.user_service.get_user_by_email")
 @patch("app.service.user_service.generate_password_hash")
 @patch("app.service.user_service.db")
-def test__create_user__user_not_exist__save_user_to_database(mock_db: MagicMock, mock_generate_password: MagicMock, mock_get_user: MagicMock):
-    mock_get_user.return_value = None
-    mock_generate_password.return_value = "pswrd_hash"
+def test__create_user__user_not_exist__save_user_to_database(db_mock: MagicMock, generate_password_mock: MagicMock, get_user_mock: MagicMock):
+    get_user_mock.return_value = None
+    generate_password_mock.return_value = "pswrd_hash"
 
     create_user("name", "email", "password")
-    added_user = mock_db.session.add.call_args[0][0]
+    added_user = db_mock.session.add.call_args[0][0]
 
-    mock_db.session.add.assert_called_once()
-    mock_db.session.commit.assert_called_once()
+    db_mock.session.add.assert_called_once()
+    db_mock.session.commit.assert_called_once()
     assert added_user.name == "name"
     assert added_user.email == "email"
     assert added_user.password == "pswrd_hash"
 
 
 @patch("app.service.user_service.get_user_by_email")
-def test__create_user__user_exist__rase_UserAlreadyExistException(mock_get_user: MagicMock):
-    mock_get_user.return_value = User("John Doe", "johndoe@email.com", "johnDO3")
+def test__create_user__user_exist__rase_UserAlreadyExistException(get_user_mock: MagicMock):
+    get_user_mock.return_value = User("John Doe", "johndoe@email.com", "johnDO3")
 
     with pytest.raises(UserAlreadyExistException) as exc_info:
         create_user("name", "email", "password")
