@@ -2,17 +2,16 @@ from app.error_handling.exceptions import InvalidMapException
 from .models import Coordinates, Game, Cell
 from random import choice
 
-NUM_OF_ROWS = 8
-NUM_OF_COLUMNS = 8
-NUM_OF_MINES = 10
 
+def generate_game(num_of_rows: int, num_of_columns: int) -> Game:
+    if num_of_rows < 1 or num_of_columns < 1:
+        raise InvalidMapException()
 
-def generate_game() -> Game:
     cells: dict[Coordinates, Cell] = {}
-    game = Game(NUM_OF_ROWS, NUM_OF_COLUMNS, cells)
+    game = Game(num_of_rows, num_of_columns, cells)
 
-    for x in range(NUM_OF_COLUMNS):
-        for y in range(NUM_OF_ROWS):
+    for x in range(num_of_columns):
+        for y in range(num_of_rows):
             cell = Cell(game, False, [])
             cells[Coordinates(x, y)] = cell
 
@@ -25,17 +24,17 @@ def generate_game() -> Game:
     return game
 
 
-def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordinates):
+def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordinates, num_of_mines: int):
     valid_cells = [
         cell
         for cell_coor, cell in cells.items()
         if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor
         ]
 
-    if NUM_OF_MINES > len(valid_cells):
+    if len(valid_cells) < num_of_mines:
         raise InvalidMapException()
 
-    for _ in range(NUM_OF_MINES):
+    for _ in range(num_of_mines):
         cell = choice(valid_cells)
         cell.is_mine = True
         valid_cells.remove(cell)

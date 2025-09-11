@@ -3,6 +3,8 @@ from app.game.generation import populate_with_mines
 from app.game.models import ActionType, Cell, Game, Coordinates, GameState
 from typing import Iterable
 
+NUM_OF_MINES = 10
+
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates):
     action_cell = game.cells.get(action_coordinates)
@@ -18,7 +20,7 @@ def handle_player_step(game: Game, action_type: ActionType, action_coordinates: 
 
 def handle_reveal_action(game: Game, action_coordinates: Coordinates) -> None:
     if game.state.name == "INITIALIZED":
-        populate_with_mines(game.cells, action_coordinates)
+        populate_with_mines(game.cells, action_coordinates, NUM_OF_MINES)
         game.state = GameState.STARTED
 
     action_cell = game.cells[action_coordinates]
