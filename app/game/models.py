@@ -40,9 +40,10 @@ class Game:
     def cells(self, cells: dict[Coordinates, "Cell"]):
         if len(cells) != self.rows * self.columns:
             raise InvalidMapException()
-        for coor, cell in cells.items():
+        for coor in cells.keys():
             if (not (0 <= coor.x <= self.rows and 0 <= coor.y <= self.columns)):
                 raise InvalidMapException()
+        self._cells = cells
 
 
 class Cell:
