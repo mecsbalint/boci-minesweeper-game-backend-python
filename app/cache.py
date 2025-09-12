@@ -4,7 +4,7 @@ from app.error_handling.exceptions import CacheConnectionException, CacheOperati
 from app.extensions import cache
 from flask import Flask
 from os import getenv
-from typing import Callable, ParamSpec, cast, Any, TypeVar
+from typing import Callable, cast, Any, TypeVar
 from redis.exceptions import ConnectionError, TimeoutError, ResponseError, InvalidResponse
 from pickle import PickleError, UnpicklingError
 

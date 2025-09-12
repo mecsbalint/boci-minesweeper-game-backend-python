@@ -3,6 +3,8 @@ from app.game.generation import populate_with_mines
 from app.game.models import ActionType, Cell, Game, Coordinates, GameState
 from typing import Iterable
 
+NUM_OF_MINES = 10
+
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates):
     action_cell = game.cells.get(action_coordinates)
@@ -11,14 +13,14 @@ def handle_player_step(game: Game, action_type: ActionType, action_coordinates: 
 
     match action_type:
         case ActionType.REVEAL:
-            handle_reveal_action(game, action_coordinates)
+            __handle_reveal_action(game, action_coordinates)
         case ActionType.FLAG:
-            handle_flag_action(game, action_coordinates)
+            __handle_flag_action(game, action_coordinates)
 
 
-def handle_reveal_action(game: Game, action_coordinates: Coordinates) -> None:
+def __handle_reveal_action(game: Game, action_coordinates: Coordinates) -> None:
     if game.state.name == "INITIALIZED":
-        populate_with_mines(game.cells, action_coordinates)
+        populate_with_mines(game.cells, action_coordinates, NUM_OF_MINES)
         game.state = GameState.STARTED
 
     action_cell = game.cells[action_coordinates]
@@ -31,7 +33,7 @@ def handle_reveal_action(game: Game, action_coordinates: Coordinates) -> None:
             game.state = GameState.FINISHED_WON
 
 
-def handle_flag_action(game: Game, action_coordinates: Coordinates) -> None:
+def __handle_flag_action(game: Game, action_coordinates: Coordinates) -> None:
     action_cell = game.cells[action_coordinates]
     if action_cell.is_flagged:
         action_cell.is_flagged = False
