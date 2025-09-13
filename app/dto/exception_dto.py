@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class ExceptionDto(BaseModel):
+class ErrorDetailDto(BaseModel):
     code: str
     message: str
