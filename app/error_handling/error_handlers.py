@@ -30,8 +30,8 @@ def init_error_handlers(app: Flask):
         error_logs: list[ErrorDetailDto] = []
         for error in errors:
             error_logs.append(ErrorDetailDto(
-                code=f"VALIDATION_ERROR_{error["type"]}",
-                message=f"{"->".join(map(str, error["loc"]))}: {error["msg"]}"))
+                code=f"VALIDATION_ERROR_{error['type']}",
+                message=f"{'->'.join(map(str, error['loc']))}: {error['msg']}"))
         return jsonify([error.model_dump() for error in error_logs]), 400
 
     @app.errorhandler(ApiException)
