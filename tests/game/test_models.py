@@ -1,12 +1,12 @@
 from copy import copy
 import pytest
 from app.error_handling.exceptions import InvalidBoardException
-from app.game.generation import generate_base_game_board
+from app.game.generation import __generate_base_game_board
 from app.game.models import Cell, Coordinates, Game
 
 @pytest.fixture
 def game():
-    return generate_base_game_board(4, 4)
+    return __generate_base_game_board(4, 4)
 
 
 def test__Game__set_cells_mismatched_number_of_cells__raise_InvalidMapException(game: Game):

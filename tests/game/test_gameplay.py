@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 from app.error_handling.exceptions import InvalidPlayerMoveException
 from app.game.gameplay import handle_player_step
-from app.game.generation import generate_base_game_board
+from app.game.generation import __generate_base_game_board
 from app.game.models import ActionType, Coordinates, GameState
 
 
@@ -42,7 +42,7 @@ def reveal_cell_block_mock(monkeypatch: pytest.MonkeyPatch):
 
 
 def test__handle_player_step__action_cell_not_exist__raise_InvalidPlayerMoveException():
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_coordinates = Coordinates(5, 5)
 
     with pytest.raises(InvalidPlayerMoveException) as exc_info:
@@ -52,7 +52,7 @@ def test__handle_player_step__action_cell_not_exist__raise_InvalidPlayerMoveExce
 
 
 def test__handle_player_step__action_cell_not_hidden__raise_InvalidPlayerMoveException():
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_coordinates = Coordinates(0, 0)
     game.cells[action_coordinates].is_hidden = False
 
@@ -63,7 +63,7 @@ def test__handle_player_step__action_cell_not_hidden__raise_InvalidPlayerMoveExc
 
 
 def test__handle_player_step__action_type_reveal__run_handle_reveal_action(handle_reveal_mock: MagicMock, handle_flag_mock: MagicMock):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
 
@@ -74,7 +74,7 @@ def test__handle_player_step__action_type_reveal__run_handle_reveal_action(handl
 
 
 def test__handle_player_step__action_type_flag__run_handle_flag_action(handle_reveal_mock: MagicMock, handle_flag_mock: MagicMock):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.FLAG
     action_coordinates = Coordinates(0, 0)
 
@@ -85,7 +85,7 @@ def test__handle_player_step__action_type_flag__run_handle_flag_action(handle_re
 
 
 def test__handle_player_step__action_type_reveal_and_game_state_initialized__run_populate_mines_and_game_state_set_started(populate_with_mines_mock: MagicMock, num_of_mines_mock: int):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     game.state = GameState.INITIALIZED
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
@@ -96,7 +96,7 @@ def test__handle_player_step__action_type_reveal_and_game_state_initialized__run
 
 
 def test__handle_player_step__action_type_reveal_and_action_cell_mine__game_state_set_finished_lost_and_reveal_cell_block_not_run(reveal_cell_block_mock: MagicMock):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
     game.cells[action_coordinates].is_mine = True
@@ -108,7 +108,7 @@ def test__handle_player_step__action_type_reveal_and_action_cell_mine__game_stat
 
 
 def test__handle_player_step__action_type_reveal_and_action_cell_not_mine__reveal_cell_block_run(reveal_cell_block_mock: MagicMock):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
     action_cell = game.cells[action_coordinates]
@@ -120,7 +120,7 @@ def test__handle_player_step__action_type_reveal_and_action_cell_not_mine__revea
 
 
 def test__handle_player_step__action_type_reveal_and_player_won__reveal_cell_block_run_and_game_state_set_finished_won(reveal_cell_block_mock: MagicMock):
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
     action_cell = game.cells[action_coordinates]
@@ -136,7 +136,7 @@ def test__handle_player_step__action_type_reveal_and_player_won__reveal_cell_blo
 
 
 def test__handle_player_step__action_type_flag_and_action_cell_flagged__unflag_cell():
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.FLAG
     action_coordinates = Coordinates(0, 0)
     game.cells[action_coordinates].is_flagged = True
@@ -147,7 +147,7 @@ def test__handle_player_step__action_type_flag_and_action_cell_flagged__unflag_c
 
 
 def test__handle_player_step__action_type_flag_and_action_cell_unflagged__flag_cell():
-    game = generate_base_game_board(4, 4)
+    game = __generate_base_game_board(4, 4)
     action_type = ActionType.FLAG
     action_coordinates = Coordinates(0, 0)
     game.cells[action_coordinates].is_flagged = False

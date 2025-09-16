@@ -31,11 +31,12 @@ class Coordinates:
 
 
 class Game:
-    def __init__(self, players: set[Player], *, board: dict[Coordinates, "Cell"] = {}, winner: Player | None = None):
+    def __init__(self, players: set[Player], num_of_mines: int, *, board: dict[Coordinates, "Cell"] = {}, winner: Player | None = None):
         self.state: GameState = GameState.CREATED
         self._winner = winner
         self.players = players
         self.board = board
+        self.num_of_mines = num_of_mines
 
     @property
     def winner(self):

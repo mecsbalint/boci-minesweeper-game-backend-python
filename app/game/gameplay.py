@@ -1,9 +1,25 @@
-from app.error_handling.exceptions import InvalidPlayerMoveException
-from app.game.generation import populate_with_mines
+from random import choice
+from app.error_handling.exceptions import InvalidBoardException, InvalidPlayerMoveException
 from app.game.models import ActionType, Cell, Game, Coordinates, GameState
 from typing import Iterable
 
-NUM_OF_MINES = 10
+
+def populate_with_mines(board: dict[Coordinates, Cell], start_cells: set[Cell], num_of_mines: int):
+    invalid_cells: set[Cell] = set()
+    for cell in start_cells:
+        invalid_cells.add(cell, *cell.neighbors)
+
+    valid_cells = [*set(board.values()) & invalid_cells]
+
+    if len(valid_cells) < num_of_mines:
+        raise InvalidBoardException()
+
+    for _ in range(num_of_mines):
+        cell = choice(valid_cells)
+        cell.is_mine = True
+        valid_cells.remove(cell)
+        for neighbor in cell.neighbors:
+            neighbor.num_neighbor_mines += 1
 
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates):

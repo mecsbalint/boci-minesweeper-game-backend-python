@@ -2,7 +2,7 @@ from app.cache import handle_cache_errors
 from app.error_handling.exceptions import UserNotFoundException, GameNotFoundException
 from app.game.gameplay import handle_player_step
 from app.game.models import ActionType, Coordinates, Game, GameState
-from app.game.generation import generate_base_game_board
+from app.game.generation import __generate_base_game_board
 from app.service.user_service import get_user_by_id
 from ..dto.game_dto import GameDto, PlayerMoveDto
 from app.extensions import cache
@@ -15,7 +15,7 @@ NUM_OF_COLUMNS = 8
 def create_game(user_id: int):
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
-    game: Game = generate_base_game_board(NUM_OF_ROWS, NUM_OF_COLUMNS)
+    game: Game = __generate_base_game_board(NUM_OF_ROWS, NUM_OF_COLUMNS)
     cache.set(user_id, game)  # pyright: ignore[reportUnknownMemberType]
 
 
