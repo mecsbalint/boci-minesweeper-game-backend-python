@@ -43,11 +43,27 @@ class GameException(ApiException):
         super().__init__(status, *errors)
 
 
+class InvalidBoardException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_BOARD_ERROR",
+            message="An error occured during map generation or initialization")
+        super().__init__(500, error)
+
+
 class InvalidMapException(GameException):
     def __init__(self) -> None:
         error = ErrorDetailDto(
             code="GAME_MAP_ERROR",
-            message="An error occured during map generation or initialization")
+            message="Cannot set winner before the game is finished.")
+        super().__init__(500, error)
+
+
+class InvalidCellException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_CELL_ERROR",
+            message="An error occured during creation or modification of a cell")
         super().__init__(500, error)
 
 

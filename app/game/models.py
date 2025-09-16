@@ -1,14 +1,19 @@
 from dataclasses import dataclass
 from enum import Enum, auto
+from app.error_handling.exceptions import InvalidCellException, InvalidMapException
 
-from app.error_handling.exceptions import InvalidMapException
+
+class Player(Enum):
+    PLAYER_ONE = auto(),
+    PLAYER_TWO = auto()
 
 
 class GameState(Enum):
-    INITIALIZED = auto()
-    STARTED = auto()
-    FINISHED_LOST = auto()
-    FINISHED_WON = auto()
+    CREATED = auto(),
+    WAITING = auto(),
+    READY = auto(),
+    ACTIVE = auto(),
+    FINISHED = auto()
 
 
 class ActionType(Enum):
@@ -26,31 +31,38 @@ class Coordinates:
 
 
 class Game:
-    def __init__(self, rows: int, columns: int, cells: dict[Coordinates, "Cell"]):
-        self.rows = rows
-        self.columns = columns
-        self._cells = cells
-        self.state: GameState = GameState.INITIALIZED
+    def __init__(self, players: set[Player], *, board: dict[Coordinates, "Cell"] = {}, winner: Player | None = None):
+        self.state: GameState = GameState.CREATED
+        self._winner = winner
+        self.players = players
+        self.board = board
 
     @property
-    def cells(self):
-        return self._cells
+    def winner(self):
+        return self._winner
 
-    @cells.setter
-    def cells(self, cells: dict[Coordinates, "Cell"]):
-        if len(cells) != self.rows * self.columns:
+    @winner.setter
+    def winner(self, winner: Player | None):
+        if self.state is not GameState.FINISHED:
             raise InvalidMapException()
-        for coor in cells.keys():
-            if (not (0 <= coor.x <= self.rows and 0 <= coor.y <= self.columns)):
-                raise InvalidMapException()
-        self._cells = cells
+        self._winner = winner
 
 
 class Cell:
-    def __init__(self, game: Game, is_mine: bool, neighbors: list["Cell"]):
+    def __init__(self, game: Game, *, is_mine: bool = False, neighbors: set["Cell"] = set(), flagged_by: set[Player] = set(), owner: Player | None = None):
         self.game = game
         self.is_mine = is_mine
         self.neighbors = neighbors
-        self.is_hidden = True
-        self.is_flagged = False
+        self.flagged_by = flagged_by
+        self._owner: Player | None = owner
         self.num_neighbor_mines = 0
+
+    @property
+    def owner(self):
+        return self._owner
+
+    @owner.setter
+    def owner(self, owner: Player):
+        if self.is_mine:
+            raise InvalidCellException()
+        self._owner = owner

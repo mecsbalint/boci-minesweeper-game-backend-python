@@ -1,11 +1,11 @@
-from app.error_handling.exceptions import InvalidMapException
-from .models import Coordinates, Game, Cell
+from app.error_handling.exceptions import InvalidBoardException
+from .models import Coordinates, Game, Cell, Player
 from random import choice
 
 
-def generate_game(num_of_rows: int, num_of_columns: int) -> Game:
+def generate_game(players: Player, num_of_rows: int, num_of_columns: int) -> Game:
     if num_of_rows < 1 or num_of_columns < 1:
-        raise InvalidMapException()
+        raise InvalidBoardException()
 
     cells: dict[Coordinates, Cell] = {}
     game = Game(num_of_rows, num_of_columns, cells)
@@ -32,7 +32,7 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         ]
 
     if len(valid_cells) < num_of_mines:
-        raise InvalidMapException()
+        raise InvalidBoardException()
 
     for _ in range(num_of_mines):
         cell = choice(valid_cells)

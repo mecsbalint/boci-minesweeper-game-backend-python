@@ -1,6 +1,6 @@
 from copy import copy
 import pytest
-from app.error_handling.exceptions import InvalidMapException
+from app.error_handling.exceptions import InvalidBoardException
 from app.game.generation import generate_game
 from app.game.models import Cell, Coordinates, Game
 
@@ -13,7 +13,7 @@ def test__Game__set_cells_mismatched_number_of_cells__raise_InvalidMapException(
     valid_coordinates = Coordinates(0, 0)
     cells = {valid_coordinates: Cell(game, False, [])}
 
-    with pytest.raises(InvalidMapException) as exc_info:
+    with pytest.raises(InvalidBoardException) as exc_info:
         game.cells = cells
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code
@@ -26,7 +26,7 @@ def test__Game__set_cells_one_cell_has_invalid_coordinates__raise_InvalidMapExce
     cells.pop(valid_coordinates)
     cells[invalid_coordinates] = Cell(game, False, [])
 
-    with pytest.raises(InvalidMapException) as exc_info:
+    with pytest.raises(InvalidBoardException) as exc_info:
         game.cells = cells
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code
@@ -36,7 +36,7 @@ def test__Game__set_cells_all_cells_have_invalid_coordinates__raise_InvalidMapEx
     invalid_coordinates = Coordinates(5, 5)
     cells = {invalid_coordinates: Cell(game, False, []) for _ in range(len(game.cells))}
 
-    with pytest.raises(InvalidMapException) as exc_info:
+    with pytest.raises(InvalidBoardException) as exc_info:
         game.cells = cells
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code

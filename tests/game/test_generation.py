@@ -1,7 +1,7 @@
 from functools import reduce
 from unittest.mock import MagicMock, patch
 import pytest
-from app.error_handling.exceptions import InvalidMapException
+from app.error_handling.exceptions import InvalidBoardException
 from app.game.generation import generate_game, populate_with_mines
 from app.game.models import Cell, Coordinates
 
@@ -38,7 +38,7 @@ def test__generate_game__invalid_num_of_rows__raise_InvalidMapException():
     num_of_rows = -1
     num_of_columns = 8
 
-    with pytest.raises(InvalidMapException) as exc_info:
+    with pytest.raises(InvalidBoardException) as exc_info:
         generate_game(num_of_rows, num_of_columns)
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code
@@ -93,7 +93,7 @@ def test__populate_with_mines__num_neighbor_mines_correspond_with_neighbor_mines
 def test__populate_with_mines__there_is_no_enough_valid_cells__raise_InvalidMapException():
     empty_cells_dict: dict[Coordinates, Cell] = {}
 
-    with pytest.raises(InvalidMapException) as exc_info:
+    with pytest.raises(InvalidBoardException) as exc_info:
         populate_with_mines(empty_cells_dict, Coordinates(0, 0), 10)
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code
