@@ -2,18 +2,18 @@ from functools import reduce
 from unittest.mock import MagicMock, patch
 import pytest
 from app.error_handling.exceptions import InvalidBoardException
-from app.game.generation import generate_game, populate_with_mines
+from app.game.generation import generate_base_game_board, populate_with_mines
 from app.game.models import Cell, Coordinates
 
 
 def test__generate_game__return_game_with_right_num_of_cells():
-    game = generate_game(4, 4)
+    game = generate_base_game_board(4, 4)
 
     assert len(game.cells) == game.rows * game.columns
 
 
 def test__generate_game__return_game_with_cells_with_right_coordinates():
-    game = generate_game(4, 4)
+    game = generate_base_game_board(4, 4)
     coordinates_tuples_iterable = [coor.get_coordinates() for coor in game.cells.keys()]
 
     for y in range(game.rows):
@@ -22,7 +22,7 @@ def test__generate_game__return_game_with_cells_with_right_coordinates():
 
 
 def test__generate_game__return_game_with_cells_with_right_num_of_neighbors():
-    game = generate_game(4, 4)
+    game = generate_base_game_board(4, 4)
 
     for coor, cell in game.cells.items():
         x, y = coor.get_coordinates()
@@ -39,7 +39,7 @@ def test__generate_game__invalid_num_of_rows__raise_InvalidMapException():
     num_of_columns = 8
 
     with pytest.raises(InvalidBoardException) as exc_info:
-        generate_game(num_of_rows, num_of_columns)
+        generate_base_game_board(num_of_rows, num_of_columns)
 
     assert "GAME_MAP_ERROR" == exc_info.value.errors[0].code
 
@@ -47,7 +47,7 @@ def test__generate_game__invalid_num_of_rows__raise_InvalidMapException():
 @patch("app.game.generation.choice")
 def test__populate_with_mines__start_position_and_neighbors_has_mine_false(choice_mock: MagicMock):
     choice_mock.side_effect = lambda seq: seq[0]  # pyright: ignore[reportUnknownLambdaType]
-    game = generate_game(4, 4)
+    game = generate_base_game_board(4, 4)
     start_coordinates = Coordinates(0, 0)
     start_cell = game.cells[start_coordinates]
     neighbors = start_cell.neighbors
@@ -62,7 +62,7 @@ def test__populate_with_mines__start_position_and_neighbors_has_mine_false(choic
 @patch("app.game.generation.choice")
 def test__populate_with_mines__correct_num_of_mines_placed(choice_mock: MagicMock):
     choice_mock.side_effect = lambda seq: seq[0]  # pyright: ignore[reportUnknownLambdaType]
-    cells = generate_game(4, 4).cells
+    cells = generate_base_game_board(4, 4).cells
     start_coordinates = Coordinates(0, 0)
     num_of_mines = 12
 
@@ -76,7 +76,7 @@ def test__populate_with_mines__correct_num_of_mines_placed(choice_mock: MagicMoc
 def test__populate_with_mines__num_neighbor_mines_correspond_with_neighbor_mines_number(choice_mock: MagicMock):
     choice_mock.side_effect = lambda seq: seq[0]  # pyright: ignore[reportUnknownLambdaType]
     choice_mock.side_effect = lambda seq: seq[0]  # pyright: ignore[reportUnknownLambdaType]
-    cells = generate_game(4, 4).cells
+    cells = generate_base_game_board(4, 4).cells
     start_coordinates = Coordinates(0, 0)
     num_of_mines = 12
 

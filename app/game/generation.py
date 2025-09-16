@@ -1,34 +1,31 @@
 from app.error_handling.exceptions import InvalidBoardException
-from .models import Coordinates, Game, Cell, Player
+from .models import Coordinates, Game, Cell
 from random import choice
 
 
-def generate_game(players: Player, num_of_rows: int, num_of_columns: int) -> Game:
+def generate_base_game_board(game: Game, num_of_rows: int, num_of_columns: int) -> dict[Coordinates, Cell]:
     if num_of_rows < 1 or num_of_columns < 1:
         raise InvalidBoardException()
 
-    cells: dict[Coordinates, Cell] = {}
-    game = Game(num_of_rows, num_of_columns, cells)
+    board: dict[Coordinates, Cell] = {}
 
     for x in range(num_of_columns):
         for y in range(num_of_rows):
-            cell = Cell(game, False, [])
-            cells[Coordinates(x, y)] = cell
+            cell = Cell(game)
+            board[Coordinates(x, y)] = cell
 
-    for cell_coor, cell in cells.items():
-        neighbors = [other_cell for other_coor, other_cell in cells.items() if __is_neighbor(cell_coor, other_coor)]
+    for cell_coor, cell in board.items():
+        neighbors = {other_cell for other_coor, other_cell in board.items() if __is_neighbor(cell_coor, other_coor)}
         cell.neighbors = neighbors
 
-    game.cells = cells
-
-    return game
+    return board
 
 
-def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordinates, num_of_mines: int):
+def populate_with_mines(board: dict[Coordinates, Cell], start_positions: set[Coordinates], num_of_mines: int):
     valid_cells = [
         cell
-        for cell_coor, cell in cells.items()
-        if not __is_neighbor(start_position, cell_coor) and start_position != cell_coor
+        for coor, cell in board.items()
+        if not __is_neighbor_of_any(coor, start_positions) and coor not in start_positions
         ]
 
     if len(valid_cells) < num_of_mines:
@@ -40,6 +37,13 @@ def populate_with_mines(cells: dict[Coordinates, Cell], start_position: Coordina
         valid_cells.remove(cell)
         for neighbor in cell.neighbors:
             neighbor.num_neighbor_mines += 1
+
+
+def __is_neighbor_of_any(coordinates: Coordinates, candidate_coors: set[Coordinates]) -> bool:
+    for candidate in candidate_coors:
+        if __is_neighbor(coordinates, candidate):
+            return True
+    return False
 
 
 def __is_neighbor(coordinates_1: Coordinates, coordinates_2: Coordinates) -> bool:
