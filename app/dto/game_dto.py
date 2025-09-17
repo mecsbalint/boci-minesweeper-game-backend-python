@@ -38,11 +38,11 @@ class MatchDto(BaseModel):
     def _get_state(cell: Cell, match_state: MatchState, current_player: Player) -> str:
         match match_state:  # pyright: ignore[reportMatchNotExhaustive]
             case MatchState.READY:
-                MatchDto._get_state_for_ready(cell, current_player)
+                return MatchDto._get_state_for_ready(cell, current_player)
             case MatchState.ACTIVE:
-                MatchDto._get_state_for_active(cell, current_player)
+                return MatchDto._get_state_for_active(cell, current_player)
             case MatchState.FINISHED:
-                MatchDto._get_state_for_finished(cell, current_player)
+                return MatchDto._get_state_for_finished(cell, current_player)
             case _:
                 return "void"
 

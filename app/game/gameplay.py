@@ -77,11 +77,11 @@ def check_for_finish(game: Game) -> bool:
     return has_not_owned_not_mines
 
 
-def check_for_winner(game: Game) -> Player | None:
-    candidates = {player: 0 for player in game.players if player.active}
+def check_for_winner(game: Game) -> Player:
+    if len(game.players) == 1:
+        return list(game.players)[0]
 
-    if len(candidates) == 0:
-        return None
+    candidates = {player: 0 for player in game.players}
 
     for cell in game.board.values():
         if cell.owner in candidates:

@@ -45,7 +45,7 @@ def get_active_game(user_id: int) -> MatchDto:
 
     if not match:
         raise GameNotFoundException()
-    return MatchDto.from_match(match)
+    return MatchDto.from_match(match, user_id)
 
 
 @handle_cache_errors
@@ -86,4 +86,4 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     else:
         cache.set(user_id, match)  # pyright: ignore[reportUnknownMemberType]
 
-    return MatchDto.from_match(match)
+    return MatchDto.from_match(match, user_id)

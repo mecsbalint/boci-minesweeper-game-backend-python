@@ -4,13 +4,9 @@ from app.error_handling.exceptions import InvalidCellException
 
 
 class Player(Enum):
-    PLAYER_VOID = (0, False)
-    PLAYER_ONE = (1, True)
-    PLAYER_TWO = (2, True)
-
-    def __init__(self, num: int, active: bool) -> None:
-        self.num = num
-        self.active = active
+    PLAYER_VOID = auto()
+    PLAYER_ONE = auto()
+    PLAYER_TWO = auto()
 
 
 class ActionType(Enum):
