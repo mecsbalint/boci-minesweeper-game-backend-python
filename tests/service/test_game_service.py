@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 import pytest
 from app.database.db_models import User
-from app.dto.game_dto import GameDto, PlayerMoveDto
+from app.dto.game_dto import MatchDto, PlayerMoveDto
 from app.error_handling.exceptions import UserNotFoundException, GameNotFoundException
 from app.game.game import ActionType, Coordinates, Game, MatchState
 from app.service.sp_game_service import create_game, check_active_game, get_active_game, make_player_move
@@ -85,7 +85,7 @@ def test__get_active_game__user_exist_game_exist__return_GameDto(cache_mock: Mag
     get_user_mock.return_value = user
     cache_mock.get.return_value = game
 
-    expected_result = GameDto.from_game(game)
+    expected_result = MatchDto.from_match(game)
     actual_result = get_active_game(1)
 
     assert expected_result == actual_result
@@ -121,7 +121,7 @@ def test__make_player_move__user_exist_game_exist_and_not_finished__call_cahce_s
     cache_mock.get.return_value = game
     user_id = 1
 
-    expected_result = GameDto.from_game(game)
+    expected_result = MatchDto.from_match(game)
     actual_result = make_player_move(user_id, player_move_dto)
     handle_player_step_arg_game, handle_player_step_arg_action_type, handle_player_step_arg_action_coordinates = handle_player_step_mock.call_args[0]
     cache_arg_user_id, cache_arg_game = cache_mock.set.call_args[0]
@@ -145,7 +145,7 @@ def test__make_player_move__user_exist_game_exist_and_finished__call_cahce_delet
     user_id = 1
     game.state = MatchState.FINISHED_WON
 
-    expected_result = GameDto.from_game(game)
+    expected_result = MatchDto.from_match(game)
     actual_result = make_player_move(user_id, player_move_dto)
     handle_player_step_arg_game, handle_player_step_arg_action_type, handle_player_step_arg_action_coordinates = handle_player_step_mock.call_args[0]
     cache_arg_user_id = cache_mock.delete.call_args[0][0]

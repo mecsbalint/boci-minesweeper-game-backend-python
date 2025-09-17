@@ -5,7 +5,7 @@ from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import check_for_finish, check_for_winner, handle_player_step, populate_with_mines
 from app.game.game import ActionType, Coordinates, Player
 from app.service.user_service import get_user_by_id
-from ..dto.game_dto import GameDto, PlayerMoveDto
+from ..dto.game_dto import MatchDto, PlayerMoveDto
 from app.extensions import cache
 from app.game.match import Match, MatchState, Participant
 
@@ -37,7 +37,7 @@ def check_active_game(user_id: int) -> bool:
 
 
 @handle_cache_errors
-def get_active_game(user_id: int) -> GameDto:
+def get_active_game(user_id: int) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
@@ -45,11 +45,11 @@ def get_active_game(user_id: int) -> GameDto:
 
     if not match:
         raise GameNotFoundException()
-    return GameDto.from_game(match.game)
+    return MatchDto.from_match(match)
 
 
 @handle_cache_errors
-def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
+def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
@@ -86,4 +86,4 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> GameDto:
     else:
         cache.set(user_id, match)  # pyright: ignore[reportUnknownMemberType]
 
-    return GameDto.from_game(game)
+    return MatchDto.from_match(match)

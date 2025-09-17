@@ -23,8 +23,8 @@ def init_game_endpoints(app: Flask):
     @app.route("/api/game/sp", methods=["GET"])
     @jwt_required()
     def get_current_game():  # pyright: ignore[reportUnusedFunction]
-        game_state_dto = sp_game_service.get_active_game(current_user._get_current_object())
-        return jsonify(game_state_dto.model_dump()), 200
+        match_dto = sp_game_service.get_active_game(current_user._get_current_object())
+        return jsonify(match_dto.model_dump()), 200
 
     @app.route("/api/game/sp", methods=["PATCH"])
     @jwt_required()
@@ -33,5 +33,5 @@ def init_game_endpoints(app: Flask):
 
         player_move_dto = PlayerMoveDto(**payload)
 
-        game_state_dto = sp_game_service.make_player_move(current_user._get_current_object(), player_move_dto)
-        return jsonify(game_state_dto.model_dump()), 200
+        match_dto = sp_game_service.make_player_move(current_user._get_current_object(), player_move_dto)
+        return jsonify(match_dto.model_dump()), 200

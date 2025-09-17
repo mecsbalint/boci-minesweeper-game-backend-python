@@ -1,5 +1,6 @@
-from app.game.game import Game, Cell, MatchState
-from typing import Literal
+from app.game.game import Cell, Coordinates, Player
+from app.game.match import Match, MatchState
+from typing import Literal, cast
 from pydantic import BaseModel
 
 
@@ -8,79 +9,72 @@ class PlayerMoveDto(BaseModel):
     action_type: Literal["REVEAL", "FLAG"]
 
 
-class GameDto(BaseModel):
+class MatchDto(BaseModel):
     state: str
-    rows: int
-    columns: int
-    cells: dict[str, "CellDto"]
+    winner: int | None
+    board: list[list[str]]
 
     @classmethod
-    def from_game(cls, game: Game):
-        return cls(
-            state=game.state.name,
-            rows=game.rows,
-            columns=game.columns,
-            cells={
-                f"{coordinates.x},{coordinates.y}": CellDto.from_cell(cell, game.state)
-                for coordinates, cell in game.cells.items()
-                }
-            )
-
-
-class CellDto(BaseModel):
-    state: str
-
-    @classmethod
-    def from_cell(cls, cell: Cell, game_state: MatchState) -> "CellDto":
-        return cls(state=cls.__get_state(cell, game_state))
+    def from_match(cls, match: Match, user_id: int):
+        state = match.state.name
+        winner = None if not match.winner else match.winner.user_id
+        current_player = next((p.player for p in match.participants if user_id == p.user_id))
+        board = cls._generate_2d_list_from_board(match.game.board, match.state, cast(Player, current_player))
+        return cls(state=state, winner=winner, board=board)
 
     @staticmethod
-    def __get_state(cell: Cell, game_state: MatchState) -> str:
-        match game_state:
-            case MatchState.INITIALIZED:
-                return CellDto.__get_state_for_initialized(cell)
-            case MatchState.STARTED:
-                return CellDto.__get_state_for_started(cell)
-            case MatchState.FINISHED_WON:
-                return CellDto.__get_state_for_finished_won(cell)
-            case MatchState.FINISHED_LOST:
-                return CellDto.__get_state_for_finished_lost(cell)
+    def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:
+        rows = max(coor.y for coor in board)
+        columns = max(coor.x for coor in board)
+
+        list_2d = [["void" for _ in range(columns)] for _ in range(rows)]
+
+        for coor, cell in board.items():
+            list_2d[coor.y][coor.x] = MatchDto._get_state(cell, match_state, current_player)
+
+        return list_2d
 
     @staticmethod
-    def __get_state_for_initialized(cell: Cell) -> str:
-        if cell.is_flagged:
-            return "flagged"
-        return "hidden"
+    def _get_state(cell: Cell, match_state: MatchState, current_player: Player) -> str:
+        match match_state:  # pyright: ignore[reportMatchNotExhaustive]
+            case MatchState.READY:
+                MatchDto._get_state_for_ready(cell, current_player)
+            case MatchState.ACTIVE:
+                MatchDto._get_state_for_active(cell, current_player)
+            case MatchState.FINISHED:
+                MatchDto._get_state_for_finished(cell, current_player)
+            case _:
+                return "void"
 
     @staticmethod
-    def __get_state_for_started(cell: Cell) -> str:
-        if cell.is_flagged:
-            return "flagged"
-        elif cell.is_hidden:
+    def _get_state_for_ready(cell: Cell, current_player: Player) -> str:
+        if current_player in cell.flagged_by:
+            return "flag"
+        else:
             return "hidden"
-        elif cell.is_mine:
-            return "mine"
-        elif cell.num_neighbor_mines > 0:
-            return str(cell.num_neighbor_mines)
-        else:
-            return "empty"
 
     @staticmethod
-    def __get_state_for_finished_won(cell: Cell) -> str:
-        if cell.is_mine:
-            return "mine"
-        elif cell.num_neighbor_mines > 0:
-            return str(cell.num_neighbor_mines)
-        else:
-            return "empty"
-
-    @staticmethod
-    def __get_state_for_finished_lost(cell: Cell) -> str:
-        if cell.is_mine:
-            return "mine"
-        elif cell.is_hidden:
+    def _get_state_for_active(cell: Cell, current_player: Player) -> str:
+        if current_player in cell.flagged_by:
+            return "flag"
+        elif not cell.owner:
             return "hidden"
-        elif cell.num_neighbor_mines > 0:
-            return str(cell.num_neighbor_mines)
-        else:
+        elif current_player is not cell.owner:
+            return f"opponent_{cell.owner.name}"
+        elif cell.num_neighbor_mines == 0:
             return "empty"
+        else:
+            return str(cell.num_neighbor_mines)
+
+    @staticmethod
+    def _get_state_for_finished(cell: Cell, current_player: Player) -> str:
+        if cell.is_mine:
+            return "mine" if not cell.owner else "mine_activated"
+        elif not cell.owner:
+            return "empty" if cell.num_neighbor_mines == 0 else str(cell.num_neighbor_mines)
+        elif current_player is not cell.owner:
+            return f"opponent_{cell.owner.name}"
+        elif cell.num_neighbor_mines == 0:
+            return "empty"
+        else:
+            return str(cell.num_neighbor_mines)
