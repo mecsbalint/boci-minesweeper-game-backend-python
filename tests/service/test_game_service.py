@@ -3,8 +3,8 @@ import pytest
 from app.database.db_models import User
 from app.dto.game_dto import GameDto, PlayerMoveDto
 from app.error_handling.exceptions import UserNotFoundException, GameNotFoundException
-from app.game.models import ActionType, Coordinates, Game, GameState
-from app.service.game_service import create_game, check_active_game, get_active_game, make_player_move
+from app.game.game import ActionType, Coordinates, Game, MatchState
+from app.service.sp_game_service import create_game, check_active_game, get_active_game, make_player_move
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def user():
 @pytest.fixture
 def game():
     game = Game(10, 10, {})
-    game.state = GameState.INITIALIZED
+    game.state = MatchState.INITIALIZED
     return game
 
 
@@ -143,7 +143,7 @@ def test__make_player_move__user_exist_game_exist_and_finished__call_cahce_delet
     get_user_mock.return_value = user
     cache_mock.get.return_value = game
     user_id = 1
-    game.state = GameState.FINISHED_WON
+    game.state = MatchState.FINISHED_WON
 
     expected_result = GameDto.from_game(game)
     actual_result = make_player_move(user_id, player_move_dto)

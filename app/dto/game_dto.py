@@ -1,4 +1,4 @@
-from app.game.models import Game, Cell, GameState
+from app.game.game import Game, Cell, MatchState
 from typing import Literal
 from pydantic import BaseModel
 
@@ -31,19 +31,19 @@ class CellDto(BaseModel):
     state: str
 
     @classmethod
-    def from_cell(cls, cell: Cell, game_state: GameState) -> "CellDto":
+    def from_cell(cls, cell: Cell, game_state: MatchState) -> "CellDto":
         return cls(state=cls.__get_state(cell, game_state))
 
     @staticmethod
-    def __get_state(cell: Cell, game_state: GameState) -> str:
+    def __get_state(cell: Cell, game_state: MatchState) -> str:
         match game_state:
-            case GameState.INITIALIZED:
+            case MatchState.INITIALIZED:
                 return CellDto.__get_state_for_initialized(cell)
-            case GameState.STARTED:
+            case MatchState.STARTED:
                 return CellDto.__get_state_for_started(cell)
-            case GameState.FINISHED_WON:
+            case MatchState.FINISHED_WON:
                 return CellDto.__get_state_for_finished_won(cell)
-            case GameState.FINISHED_LOST:
+            case MatchState.FINISHED_LOST:
                 return CellDto.__get_state_for_finished_lost(cell)
 
     @staticmethod

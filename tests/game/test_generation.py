@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from app.error_handling.exceptions import InvalidBoardException
 from app.game.generation import __generate_base_game_board, populate_with_mines
-from app.game.models import Cell, Coordinates
+from app.game.game import Cell, Coordinates
 
 
 def test__generate_game__return_game_with_right_num_of_cells():

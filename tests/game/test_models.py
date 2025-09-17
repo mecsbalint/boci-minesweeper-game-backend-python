@@ -2,7 +2,7 @@ from copy import copy
 import pytest
 from app.error_handling.exceptions import InvalidBoardException
 from app.game.generation import __generate_base_game_board
-from app.game.models import Cell, Coordinates, Game
+from app.game.game import Cell, Coordinates, Game
 
 @pytest.fixture
 def game():

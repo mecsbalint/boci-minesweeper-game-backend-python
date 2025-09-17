@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
 from app.error_handling.exceptions import InvalidBoardException
-from app.game.models import Coordinates, Game, Cell
+from app.game.game import Coordinates, Game, Cell
 
 
 class GameFactory(ABC):
 
-    def __init__(self, num_of_players: int) -> None:
-        self.num_of_players = num_of_players
-
     @abstractmethod
-    def create_game(self, num_of_mines: int) -> Game:
+    def create_game(self) -> Game:
         pass
 
 
@@ -24,16 +21,15 @@ class GridGameFactory(GameFactory, ABC):
 
 class RectangularGameFactory(GridGameFactory):
 
-    def __init__(self, num_of_rows: int, num_of_columns: int, num_of_players: int) -> None:
-        super().__init__(num_of_players)
+    def __init__(self, num_of_rows: int, num_of_columns: int) -> None:
         self.num_of_rows = num_of_rows
         self.num_of_columns = num_of_columns
 
-    def create_game(self, num_of_mines: int) -> Game:
+    def create_game(self) -> Game:
         if self.num_of_rows < 1 or self.num_of_columns < 1:
             raise InvalidBoardException()
 
-        game = Game(num_of_mines)
+        game = Game()
         board: dict[Coordinates, Cell] = {}
 
         for x in range(self.num_of_columns):

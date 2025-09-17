@@ -1,6 +1,6 @@
 from random import choice
 from app.error_handling.exceptions import InvalidBoardException, InvalidPlayerMoveException
-from app.game.models import ActionType, Cell, Game, Coordinates, Player
+from app.game.game import ActionType, Cell, Game, Coordinates, Player
 
 
 def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, start_cell: Cell | None = None):

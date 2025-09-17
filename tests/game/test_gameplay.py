@@ -3,7 +3,7 @@ import pytest
 from app.error_handling.exceptions import InvalidPlayerMoveException
 from app.game.gameplay import handle_player_step
 from app.game.generation import __generate_base_game_board
-from app.game.models import ActionType, Coordinates, GameState
+from app.game.game import ActionType, Coordinates, MatchState
 
 
 @pytest.fixture(autouse=True)
@@ -86,7 +86,7 @@ def test__handle_player_step__action_type_flag__run_handle_flag_action(handle_re
 
 def test__handle_player_step__action_type_reveal_and_game_state_initialized__run_populate_mines_and_game_state_set_started(populate_with_mines_mock: MagicMock, num_of_mines_mock: int):
     game = __generate_base_game_board(4, 4)
-    game.state = GameState.INITIALIZED
+    game.state = MatchState.INITIALIZED
     action_type = ActionType.REVEAL
     action_coordinates = Coordinates(0, 0)
 
@@ -104,7 +104,7 @@ def test__handle_player_step__action_type_reveal_and_action_cell_mine__game_stat
     handle_player_step(game, action_type, action_coordinates)
 
     reveal_cell_block_mock.assert_not_called()
-    assert GameState.FINISHED_LOST == game.state
+    assert MatchState.FINISHED_LOST == game.state
 
 
 def test__handle_player_step__action_type_reveal_and_action_cell_not_mine__reveal_cell_block_run(reveal_cell_block_mock: MagicMock):
@@ -132,7 +132,7 @@ def test__handle_player_step__action_type_reveal_and_player_won__reveal_cell_blo
     handle_player_step(game, action_type, action_coordinates)
 
     reveal_cell_block_mock.assert_called_once_with(game, action_cell)
-    assert GameState.FINISHED_WON == game.state
+    assert MatchState.FINISHED_WON == game.state
 
 
 def test__handle_player_step__action_type_flag_and_action_cell_flagged__unflag_cell():

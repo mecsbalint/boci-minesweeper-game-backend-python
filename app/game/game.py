@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from app.error_handling.exceptions import InvalidCellException, InvalidMapException
+from app.error_handling.exceptions import InvalidCellException
 
 
 class Player(Enum):
@@ -11,14 +11,6 @@ class Player(Enum):
     def __init__(self, num: int, active: bool) -> None:
         self.num = num
         self.active = active
-
-
-class GameState(Enum):
-    CREATED = auto(),
-    WAITING = auto(),
-    READY = auto(),
-    ACTIVE = auto(),
-    FINISHED = auto()
 
 
 class ActionType(Enum):
@@ -37,27 +29,12 @@ class Coordinates:
 
 class Game:
     def __init__(self,
-                 num_of_mines: int,
                  *,
                  board: dict[Coordinates, "Cell"] = {},
-                 winner: Player | None = None,
                  players: set[Player] = set()
                  ):
-        self.state: GameState = GameState.CREATED
-        self._winner = winner
         self.players = players
         self.board = board
-        self.num_of_mines = num_of_mines
-
-    @property
-    def winner(self):
-        return self._winner
-
-    @winner.setter
-    def winner(self, winner: Player | None):
-        if self.state is not GameState.FINISHED:
-            raise InvalidMapException()
-        self._winner = winner
 
 
 class Cell:
