@@ -36,7 +36,13 @@ class Coordinates:
 
 
 class Game:
-    def __init__(self, players: set[Player], num_of_mines: int, *, board: dict[Coordinates, "Cell"] = {}, winner: Player | None = None):
+    def __init__(self,
+                 num_of_mines: int,
+                 *,
+                 board: dict[Coordinates, "Cell"] = {},
+                 winner: Player | None = None,
+                 players: set[Player] = set()
+                 ):
         self.state: GameState = GameState.CREATED
         self._winner = winner
         self.players = players
@@ -55,7 +61,14 @@ class Game:
 
 
 class Cell:
-    def __init__(self, game: Game, *, is_mine: bool = False, neighbors: set["Cell"] = set(), flagged_by: set[Player] = set(), owner: Player | None = None):
+    def __init__(self,
+                 game: Game,
+                 *,
+                 is_mine: bool = False,
+                 neighbors: set["Cell"] = set(),
+                 flagged_by: set[Player] = set(),
+                 owner: Player | None = None
+                 ):
         self.game = game
         self.is_mine = is_mine
         self.neighbors = neighbors

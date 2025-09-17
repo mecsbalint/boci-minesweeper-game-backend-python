@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from app.error_handling.exceptions import InvalidBoardException
-from app.game.models import Coordinates, Game, Cell, Player
+from app.game.models import Coordinates, Game, Cell
 
 
 class GameFactory(ABC):
@@ -9,7 +9,7 @@ class GameFactory(ABC):
         self.num_of_players = num_of_players
 
     @abstractmethod
-    def create_game(self, num_of_mines: int, players: set[Player]) -> Game:
+    def create_game(self, num_of_mines: int) -> Game:
         pass
 
 
@@ -29,11 +29,11 @@ class RectangularGameFactory(GridGameFactory):
         self.num_of_rows = num_of_rows
         self.num_of_columns = num_of_columns
 
-    def create_game(self, num_of_mines: int, players: set[Player]) -> Game:
+    def create_game(self, num_of_mines: int) -> Game:
         if self.num_of_rows < 1 or self.num_of_columns < 1:
             raise InvalidBoardException()
 
-        game = Game(players, num_of_mines)
+        game = Game(num_of_mines)
         board: dict[Coordinates, Cell] = {}
 
         for x in range(self.num_of_columns):
