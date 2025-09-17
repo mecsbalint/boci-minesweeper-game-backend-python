@@ -4,8 +4,13 @@ from app.error_handling.exceptions import InvalidCellException, InvalidMapExcept
 
 
 class Player(Enum):
-    PLAYER_ONE = auto(),
-    PLAYER_TWO = auto()
+    PLAYER_VOID = (0, False)
+    PLAYER_ONE = (1, True)
+    PLAYER_TWO = (2, True)
+
+    def __init__(self, num: int, active: bool) -> None:
+        self.num = num
+        self.active = active
 
 
 class GameState(Enum):

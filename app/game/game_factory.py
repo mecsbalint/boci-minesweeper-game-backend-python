@@ -8,11 +8,8 @@ class GameFactory(ABC):
     def __init__(self, num_of_players: int) -> None:
         self.num_of_players = num_of_players
 
-    def create_players(self) -> set[Player]:
-        return set(list(Player)[:self.num_of_players])
-
     @abstractmethod
-    def create_game(self) -> Game:
+    def create_game(self, num_of_mines: int, players: set[Player]) -> Game:
         pass
 
 
@@ -32,11 +29,11 @@ class RectangularGameFactory(GridGameFactory):
         self.num_of_rows = num_of_rows
         self.num_of_columns = num_of_columns
 
-    def create_game(self) -> Game:
+    def create_game(self, num_of_mines: int, players: set[Player]) -> Game:
         if self.num_of_rows < 1 or self.num_of_columns < 1:
             raise InvalidBoardException()
 
-        game = Game(self.create_players())
+        game = Game(players, num_of_mines)
         board: dict[Coordinates, Cell] = {}
 
         for x in range(self.num_of_columns):
