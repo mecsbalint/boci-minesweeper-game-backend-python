@@ -1,20 +1,17 @@
-from typing import cast
-from app.cache import handle_cache_errors
 from app.error_handling.exceptions import InvalidPlayerMoveException, UserNotFoundException, GameNotFoundException
 from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import check_for_finish, check_for_winner, handle_player_step, populate_with_mines
 from app.game.game import ActionType, Coordinates, Player
 from app.service.user_service import get_user_by_id
 from ..dto.game_dto import MatchDto, PlayerMoveDto
-from app.extensions import cache
 from app.game.match import Match, MatchState, Participant
+from app.cache.match_cache import save_match_to_cache, get_match_from_cache, remove_match_from_cache, check_match_in_cache
 
 NUM_OF_ROWS = 8
 NUM_OF_COLUMNS = 8
 NUM_OF_MINES = 10
 
 
-@handle_cache_errors
 def create_game(user_id: int):
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
@@ -26,34 +23,31 @@ def create_game(user_id: int):
     participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
     match = Match(game, participants=participants)
 
-    cache.set(user_id, match)  # pyright: ignore[reportUnknownMemberType]
+    save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
 
 
-@handle_cache_errors
 def check_active_game(user_id: int) -> bool:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
-    return cache.has(user_id)  # pyright: ignore[reportUnknownMemberType]
+    return check_match_in_cache(user_id, "SP")  # pyright: ignore[reportUnknownMemberType]
 
 
-@handle_cache_errors
 def get_active_game(user_id: int) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
-    match: Match | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
+    match: Match | None = get_match_from_cache(user_id, "SP")  # pyright: ignore[reportUnknownMemberType]
 
     if not match:
         raise GameNotFoundException()
     return MatchDto.from_match(match, user_id)
 
 
-@handle_cache_errors
 def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
-    match: Match | None = cache.get(user_id)  # pyright: ignore[reportUnknownMemberType]
+    match: Match | None = get_match_from_cache(user_id, "SP")  # pyright: ignore[reportUnknownMemberType]
     if not match:
         raise GameNotFoundException()
 
@@ -69,7 +63,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
         populate_with_mines(game.board, NUM_OF_MINES, start_cell=game.board.get(action_coordinates))
         match.state = MatchState.ACTIVE
 
-    handle_player_step(match.game, action_type, action_coordinates, cast(Player, player))
+    handle_player_step(match.game, action_type, action_coordinates, player)
 
     if check_for_finish(game):
         match.state = MatchState.FINISHED
@@ -82,8 +76,8 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
                 ))
         else:
             match.winner = None
-        cache.delete(user_id)  # pyright: ignore[reportUnknownMemberType]
+        remove_match_from_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
     else:
-        cache.set(user_id, match)  # pyright: ignore[reportUnknownMemberType]
+        save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
 
     return MatchDto.from_match(match, user_id)

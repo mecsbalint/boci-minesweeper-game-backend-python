@@ -1,5 +1,4 @@
 from flask import Flask
-from app.cache import init_cache
 from app.controllers import init_endpoints
 from app.database import init_db
 from app.error_handling import init_error_handling
@@ -15,8 +14,6 @@ def create_app():
     init_security(app)
 
     init_db(app)
-
-    init_cache(app)
 
     init_error_handling(app)
 
