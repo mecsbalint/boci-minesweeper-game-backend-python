@@ -1,6 +1,6 @@
 from app.game.game import Cell, Coordinates, Player
 from app.game.match import Match, MatchState
-from typing import Literal, cast
+from typing import Literal
 from pydantic import BaseModel
 
 
@@ -11,16 +11,17 @@ class PlayerMoveDto(BaseModel):
 
 class MatchDto(BaseModel):
     state: str
-    winner: int | None
+    winner_id: int | None
+    current_user_id: int
     board: list[list[str]]
 
     @classmethod
     def from_match(cls, match: Match, user_id: int):
         state = match.state.name
-        winner = None if not match.winner else match.winner.user_id
+        winner_id = None if not match.winner else match.winner.user_id
         current_player = next((p.player for p in match.participants if user_id == p.user_id))
-        board = cls._generate_2d_list_from_board(match.game.board, match.state, cast(Player, current_player))
-        return cls(state=state, winner=winner, board=board)
+        board = cls._generate_2d_list_from_board(match.game.board, match.state, current_player)
+        return cls(state=state, winner_id=winner_id, current_user_id=user_id, board=board)
 
     @staticmethod
     def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:
