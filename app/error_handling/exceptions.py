@@ -54,6 +54,14 @@ class CacheInvalidMatchException(CacheException):
         super().__init__(404, error)
 
 
+class CacheConcurrencyException(CacheException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="CACHE_CONCURRENCY_ERROR",
+            message="Version conflict: the game state has advanced")
+        super().__init__(409, error)
+
+
 class GameException(ApiException):
     def __init__(self, status: int, *errors: ErrorDetailDto) -> None:
         super().__init__(status, *errors)

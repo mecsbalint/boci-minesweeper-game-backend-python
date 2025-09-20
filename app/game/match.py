@@ -27,10 +27,12 @@ class Match:
                  id: UUID | None = None,
                  participants: set[Participant] = set(),
                  state: MatchState = MatchState.CREATED,
-                 winner: Participant | None = None
+                 winner: Participant | None = None,
+                 version: int = 0
                  ):
         self.game = game
         self.id = id
         self.participants = participants
         self.state = state
         self.winner = winner
+        self.version = version

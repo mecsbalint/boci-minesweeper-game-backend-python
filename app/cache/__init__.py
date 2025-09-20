@@ -8,4 +8,4 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 redis_url = cast(str, getenv("REDIS_URL"))
-redis = from_url(redis_url, decode_responses=True)
+redis = from_url(redis_url)

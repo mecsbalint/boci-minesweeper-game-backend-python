@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from app.cache import redis
 import pickle
 from app.cache.cache_decorators import handle_cache_errors
-from app.error_handling.exceptions import CacheElementNotFoundException, CacheInvalidMatchException
+from app.error_handling.exceptions import CacheElementNotFoundException, CacheInvalidMatchException, CacheConcurrencyException
 from app.game.match import Match
 from uuid import UUID, uuid4
 
@@ -23,28 +23,41 @@ def save_match_to_cache(match: Match, type: SaveType):
     match_id = match.id if match.id else uuid4()
 
     match_key = _get_key(type, "match", match_id)
-    redis.set(match_key, pickle.dumps(match))
 
-    for user_key in user_keys:
-        redis.set(user_key, str(match_id))
+    with redis.pipeline() as pipeline:  # pyright: ignore[reportUnknownMemberType]
+        pipeline.watch(match_key)
+
+        current_bytes = cast(bytes | None, redis.get(match_key))
+        current_match: Match | None = pickle.loads(current_bytes) if current_bytes is not None else None
+        if current_match and match.version != current_match.version:
+            raise CacheConcurrencyException()
+
+        pipeline.multi()
+        match.version += 1
+        pipeline.set(match_key, pickle.dumps(match), ex=REDIS_TIMEOUT)
+        for user_key in user_keys:
+            pipeline.set(user_key, str(match_id), ex=REDIS_TIMEOUT)
+        pipeline.execute()
 
 
 @handle_cache_errors
 def get_match_from_cache(user_id: int, type: SaveType) -> Match:
     user_key = _get_key("SP", "user", user_id)
-    match_id_str = redis.get(user_key)
 
-    if not isinstance(match_id_str, str):
+    match_id_bytes = cast(bytes | None, redis.get(user_key))
+    if not match_id_bytes:
         raise CacheElementNotFoundException()
+    match_id_str = match_id_bytes.decode("utf-8")
 
     match_id = UUID(match_id_str)
     match_key = _get_key(type, "match", match_id)
-    match = redis.get(match_key)
+    match_bytes = cast(bytes | None, redis.get(match_key))
+    match_obj: Match | None = pickle.loads(match_bytes) if match_bytes is not None else None
 
-    if not isinstance(match, Match):
+    if not isinstance(match_obj, Match):
         raise CacheElementNotFoundException()
     else:
-        return match
+        return match_obj
 
 
 @handle_cache_errors
@@ -63,10 +76,11 @@ def remove_match_from_cache(match: Match, type: SaveType):
 @handle_cache_errors
 def check_match_in_cache(user_id: int, type: SaveType) -> bool:
     user_key = _get_key(type, "user", user_id)
-    match_id_str = redis.get(user_key)
 
-    if not isinstance(match_id_str, str):
+    match_id_bytes = cast(bytes | None, redis.get(user_key))
+    if not match_id_bytes:
         return False
+    match_id_str = match_id_bytes.decode("utf-8")
 
     match_id = UUID(match_id_str)
     match_key = _get_key(type, "match", match_id)
