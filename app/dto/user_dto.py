@@ -4,6 +4,7 @@ from app.dto.dto_base_model import DtoBaseModel
 class JwtResponseDto(DtoBaseModel):
     jwt: str
     name: str
+    id: int
 
 
 class UserDto(DtoBaseModel):
