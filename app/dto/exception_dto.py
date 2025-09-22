@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from app.dto.dto_base_model import DtoBaseModel
 
 
-class ErrorDetailDto(BaseModel):
+class ErrorDetailDto(DtoBaseModel):
     code: str
     message: str

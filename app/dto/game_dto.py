@@ -1,15 +1,15 @@
+from app.dto.dto_base_model import DtoBaseModel
 from app.game.game import Cell, Coordinates, Player
 from app.game.match import Match, MatchState
 from typing import Literal
-from pydantic import BaseModel
 
 
-class PlayerMoveDto(BaseModel):
+class PlayerMoveDto(DtoBaseModel):
     coordinates: dict[Literal["x", "y"], int]
     action_type: Literal["REVEAL", "FLAG"]
 
 
-class MatchDto(BaseModel):
+class MatchDto(DtoBaseModel):
     state: str
     winner_id: int | None
     current_user_id: int
