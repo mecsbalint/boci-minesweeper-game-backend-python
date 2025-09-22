@@ -4,6 +4,10 @@ from app.game.match import Match, MatchState
 from typing import Literal
 
 
+class GameStatusDto(DtoBaseModel):
+    status: bool
+
+
 class PlayerMoveDto(DtoBaseModel):
     coordinates: dict[Literal["x", "y"], int]
     action_type: Literal["REVEAL", "FLAG"]

@@ -1,7 +1,7 @@
 from typing import Any
 from flask import Flask, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
-from app.dto.game_dto import PlayerMoveDto
+from app.dto.game_dto import GameStatusDto, PlayerMoveDto
 from app.service import sp_game_service
 
 
@@ -18,7 +18,9 @@ def init_game_endpoints(app: Flask):
     def check_active_game_status():  # pyright: ignore[reportUnusedFunction]
         active_status = sp_game_service.check_active_game(current_user._get_current_object())
 
-        return jsonify({"status": active_status}), 200
+        status_dto = GameStatusDto(status=active_status)
+
+        return jsonify(status_dto.model_dump(by_alias=True)), 200
 
     @app.route("/api/game/sp", methods=["GET"])
     @jwt_required()
