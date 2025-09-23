@@ -7,6 +7,12 @@ class Player(Enum):
     PLAYER_VOID = auto()
     PLAYER_ONE = auto()
     PLAYER_TWO = auto()
+    PLAYER_THREE = auto()
+    PLAYER_FOUR = auto()
+    PLAYER_FIVE = auto()
+    PLAYER_SIX = auto()
+    PLAYER_SEVEN = auto()
+    PLAYER_EIGHT = auto()
 
 
 class ActionType(Enum):
