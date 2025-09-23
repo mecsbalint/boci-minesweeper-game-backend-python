@@ -28,8 +28,8 @@ class MatchDto(DtoBaseModel):
 
     @staticmethod
     def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:
-        rows = max(coor.y for coor in board)
-        columns = max(coor.x for coor in board)
+        rows = max(coor.y for coor in board) + 1
+        columns = max(coor.x for coor in board) + 1
 
         list_2d = [["void" for _ in range(columns)] for _ in range(rows)]
 

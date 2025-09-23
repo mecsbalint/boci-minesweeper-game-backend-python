@@ -20,9 +20,9 @@ REDIS_TIMEOUT = cast(int, getenv("REDIS_DEFAULT_TIMEOUT"))
 def save_match_to_cache(match: Match, type: SaveType):
     user_keys = [_get_key(type, "user", participant.user_id) for participant in match.participants]
 
-    match_id = match.id if match.id else uuid4()
+    match.id = match.id if match.id else uuid4()
 
-    match_key = _get_key(type, "match", match_id)
+    match_key = _get_key(type, "match", match.id)
 
     with redis.pipeline() as pipeline:  # pyright: ignore[reportUnknownMemberType]
         pipeline.watch(match_key)
@@ -36,7 +36,7 @@ def save_match_to_cache(match: Match, type: SaveType):
         match.version += 1
         pipeline.set(match_key, pickle.dumps(match), ex=REDIS_TIMEOUT)
         for user_key in user_keys:
-            pipeline.set(user_key, str(match_id), ex=REDIS_TIMEOUT)
+            pipeline.set(user_key, str(match.id), ex=REDIS_TIMEOUT)
         pipeline.execute()
 
 

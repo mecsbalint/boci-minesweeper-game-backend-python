@@ -22,6 +22,7 @@ def create_game(user_id: int):
 
     participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
     match = Match(game, participants=participants)
+    match.state = MatchState.READY
 
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
 
@@ -50,6 +51,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     match: Match | None = get_match_from_cache(user_id, "SP")  # pyright: ignore[reportUnknownMemberType]
     if not match:
         raise GameNotFoundException()
+    print(match.id)
 
     game = match.game
     action_type = ActionType[player_move.action_type]
@@ -60,7 +62,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
         raise InvalidPlayerMoveException()
 
     if match.state == MatchState.READY:
-        populate_with_mines(game.board, NUM_OF_MINES, start_cell=game.board.get(action_coordinates))
+        populate_with_mines(game.board, NUM_OF_MINES, action_coordinates=action_coordinates)
         match.state = MatchState.ACTIVE
 
     handle_player_step(match.game, action_type, action_coordinates, player)

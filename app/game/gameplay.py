@@ -1,12 +1,17 @@
 from random import choice
+from typing import cast
 from app.error_handling.exceptions import InvalidBoardException, InvalidPlayerMoveException
 from app.game.game import ActionType, Cell, Game, Coordinates, Player
 
 
-def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, start_cell: Cell | None = None):
+def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, action_coordinates: Coordinates | None = None):
     valid_cells: list[Cell] = []
-    if start_cell:
-        valid_cells = [*set(board.values()) & {start_cell, *start_cell.neighbors}]
+    if action_coordinates:
+        start_cell = cast(Cell, board.get(action_coordinates))
+        if start_cell:
+            valid_cells = [*set(board.values()) - {start_cell, *start_cell.neighbors}]
+        else:
+            raise InvalidPlayerMoveException()
     else:
         valid_cells = [*board.values()]
 
@@ -68,13 +73,11 @@ def check_for_finish(game: Game) -> bool:
     if len(game.players) <= 1:
         return True
 
-    has_not_owned_not_mines: bool = False
-
     for cell in game.board.values():
         if not cell.owner and not cell.is_mine:
-            has_not_owned_not_mines = True
+            return False
 
-    return has_not_owned_not_mines
+    return True
 
 
 def check_for_winner(game: Game) -> Player:
