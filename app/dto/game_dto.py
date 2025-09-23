@@ -53,14 +53,14 @@ class MatchDto(DtoBaseModel):
     @staticmethod
     def _get_state_for_ready(cell: Cell, current_player: Player) -> str:
         if current_player in cell.flagged_by:
-            return "flag"
+            return "flagged"
         else:
             return "hidden"
 
     @staticmethod
     def _get_state_for_active(cell: Cell, current_player: Player) -> str:
         if current_player in cell.flagged_by:
-            return "flag"
+            return "flagged"
         elif not cell.owner:
             return "hidden"
         elif current_player is not cell.owner:
