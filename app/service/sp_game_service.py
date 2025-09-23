@@ -70,14 +70,12 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     if check_for_finish(game):
         match.state = MatchState.FINISHED
         winning_player = check_for_winner(game)
-        if winning_player:
-            match.winner = next((
-                participant
-                for participant in match.participants
-                if winning_player == participant.player
-                ))
-        else:
-            match.winner = None
+
+        match.winner = next((
+            participant
+            for participant in match.participants
+            if winning_player == participant.player
+            ))
         remove_match_from_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
     else:
         save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
