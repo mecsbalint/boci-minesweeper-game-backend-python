@@ -9,3 +9,4 @@ load_dotenv()
 
 redis_url = cast(str, getenv("REDIS_URL"))
 redis = from_url(redis_url)
+redis.flushdb()  # pyright: ignore[reportUnknownMemberType]

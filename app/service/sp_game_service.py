@@ -51,7 +51,6 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
     match: Match | None = get_match_from_cache(user_id, "SP")  # pyright: ignore[reportUnknownMemberType]
     if not match:
         raise GameNotFoundException()
-    print(match.id)
 
     game = match.game
     action_type = ActionType[player_move.action_type]
@@ -75,7 +74,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto) -> MatchDto:
             participant
             for participant in match.participants
             if winning_player == participant.player
-            ))
+            ), None)
         remove_match_from_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
     else:
         save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]

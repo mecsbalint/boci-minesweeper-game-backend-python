@@ -38,14 +38,14 @@ class Cell:
                  game: Game,
                  *,
                  is_mine: bool = False,
-                 neighbors: set["Cell"] = set(),
-                 flagged_by: set[Player] = set(),
+                 neighbors: set["Cell"] | None = None,
+                 flagged_by: set[Player] | None = None,
                  owner: Player | None = None
                  ):
         self.game = game
         self.is_mine = is_mine
-        self.neighbors = neighbors
-        self.flagged_by = flagged_by
+        self.neighbors = neighbors or set()
+        self.flagged_by = flagged_by or set()
         self._owner: Player | None = owner
         self.num_neighbor_mines = 0
 
@@ -55,6 +55,6 @@ class Cell:
 
     @owner.setter
     def owner(self, owner: Player):
-        if self.is_mine:
+        if owner not in self.game.players:
             raise InvalidCellException()
         self._owner = owner
