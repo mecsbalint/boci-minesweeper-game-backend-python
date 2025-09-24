@@ -5,7 +5,7 @@ from app.dto.game_dto import GameStatusDto, PlayerMoveDto
 from app.service import sp_game_service
 
 
-def init_game_endpoints(app: Flask):
+def init_sp_game_endpoints(app: Flask):
 
     @app.route("/api/game/sp", methods=["POST"])
     @jwt_required()
