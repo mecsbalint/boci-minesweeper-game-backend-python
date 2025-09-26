@@ -16,6 +16,7 @@ class PlayerMoveDto(DtoBaseModel):
 class MatchDto(DtoBaseModel):
     state: str
     winner_id: int | None
+    empty_seats: int
     board: list[list[str]]
 
     @classmethod
@@ -23,8 +24,9 @@ class MatchDto(DtoBaseModel):
         state = match.state.name
         winner_id = None if not match.winner else match.winner.user_id
         current_player = next((p.player for p in match.participants if user_id == p.user_id))
+        empty_seats = len([p for p in match.game.players if p is not Player.PLAYER_VOID]) - len(match.participants)
         board = cls._generate_2d_list_from_board(match.game.board, match.state, current_player)
-        return cls(state=state, winner_id=winner_id, board=board)
+        return cls(state=state, winner_id=winner_id, empty_seats=empty_seats, board=board)
 
     @staticmethod
     def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:

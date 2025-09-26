@@ -1,7 +1,5 @@
-from os import getenv
 from typing import Literal, cast
-from dotenv import load_dotenv
-from app.cache import redis
+from app.cache import REDIS_TIMEOUT, redis
 import pickle
 from app.cache.cache_decorators import handle_cache_errors
 from app.error_handling.exceptions import CacheElementNotFoundException, CacheInvalidMatchException, CacheConcurrencyException
@@ -11,9 +9,6 @@ from uuid import UUID, uuid4
 
 SaveType = Literal["SP", "MP"]
 KeyType = Literal["user", "match"]
-
-load_dotenv()
-REDIS_TIMEOUT = cast(int, getenv("REDIS_DEFAULT_TIMEOUT"))
 
 
 @handle_cache_errors

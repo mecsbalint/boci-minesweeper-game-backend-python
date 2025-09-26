@@ -4,26 +4,34 @@ from app.error_handling.exceptions import InvalidBoardException, InvalidPlayerMo
 from app.game.game import ActionType, Cell, Game, Coordinates, Player
 
 
-def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, action_coordinates: Coordinates | None = None):
-    valid_cells: list[Cell] = []
+def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, action_coordinates: list[Coordinates] | None = None):
+    valid_cells_set: set[Cell] = {*board.values()}
     if action_coordinates:
-        start_cell = cast(Cell, board.get(action_coordinates))
-        if start_cell:
-            valid_cells = [*set(board.values()) - {start_cell, *start_cell.neighbors}]
-        else:
-            raise InvalidPlayerMoveException()
-    else:
-        valid_cells = [*board.values()]
+        invalid_cells: set[Cell] = set()
+        for coordinates in action_coordinates:
+            start_cell = cast(Cell, board.get(coordinates))
+            if start_cell:
+                invalid_cells.update({start_cell, *start_cell.neighbors})
+            else:
+                raise InvalidPlayerMoveException()
+        valid_cells_set = valid_cells_set - invalid_cells
 
-    if len(valid_cells) < num_of_mines:
+    if len(valid_cells_set) < num_of_mines:
         raise InvalidBoardException()
 
+    valid_cells_list = [*valid_cells_set]
     for _ in range(num_of_mines):
-        cell = choice(valid_cells)
+        cell = choice(valid_cells_list)
         cell.is_mine = True
-        valid_cells.remove(cell)
+        valid_cells_set.remove(cell)
         for neighbor in cell.neighbors:
             neighbor.num_neighbor_mines += 1
+
+
+def remove_mines(board: dict[Coordinates, Cell]):
+    for cell in board.values():
+        cell.is_mine = False
+        cell.num_neighbor_mines = 0
 
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates, player: Player):
@@ -67,6 +75,24 @@ def __reveal_cell_block(game: Game, starting_cell: Cell, player: Player) -> None
                     if not neighbor.owner and player not in neighbor.flagged_by
                     ])
         cells_to_check = cells_to_check_next
+
+
+def get_cell_block(game: Game, position: Coordinates) -> set[Cell]:
+    block: set[Cell] = set()
+    cells_to_check = {cast(Cell, game.board.get(position))}
+
+    while len(cells_to_check) > 0:
+        cells_to_check_next: set[Cell] = set()
+        for cell in cells_to_check:
+            block.add(cell)
+            if cell.num_neighbor_mines == 0:
+                cells_to_check_next.update([
+                    neighbor
+                    for neighbor in cell.neighbors
+                    ])
+        cells_to_check = cells_to_check_next
+
+    return block
 
 
 def check_for_finish(game: Game) -> bool:
