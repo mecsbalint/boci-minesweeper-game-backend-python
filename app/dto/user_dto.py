@@ -21,3 +21,7 @@ class UserRegistrationDto(DtoBaseModel):
 class UserLoginDto(DtoBaseModel):
     email: str
     password: str
+
+
+class WSAuthDto(DtoBaseModel):
+    jwt: str

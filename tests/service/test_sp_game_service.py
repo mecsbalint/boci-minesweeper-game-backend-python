@@ -4,7 +4,7 @@ from app.database.db_models import User
 from app.dto.game_dto import MatchDto, PlayerMoveDto
 from app.error_handling.exceptions import UserNotFoundException, GameNotFoundException
 from app.game.game import ActionType, Coordinates, Game, MatchState
-from app.service.sp_game_service import create_game, check_active_game, get_active_game, make_player_move
+from app.service.game_service import create_sp_game, check_active_game, get_active_game, make_player_move
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test__create_game__user_exist__game_generated_and_saved_in_cache(cache_mock:
     generate_game_mock.return_value = game
     user_id = 1
 
-    create_game(user_id)
+    create_sp_game(user_id)
     cache_arg_user_id, cache_arg_game = cache_mock.set.call_args[0]
 
     generate_game_mock.assert_called_once()
@@ -48,7 +48,7 @@ def test__create_game__user_not_exist__raise_UserNotFoundException(get_user_mock
     get_user_mock.return_value = None
 
     with pytest.raises(UserNotFoundException) as exc_info:
-        create_game(1)
+        create_sp_game(1)
 
     assert "USER_NOT_FOUND" == exc_info.value.errors[0].code
 

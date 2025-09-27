@@ -1,26 +1,41 @@
-from socketio import Server  # pyright: ignore[reportMissingTypeStubs]
+from typing import Any, cast
+from uuid import UUID
+from socketio import Server
+from app.cache.match_cache import get_match_by_user_id_from_cache
+from app.cache.websocket_cache import get_user_id_by_sid_from_cache
+from app.dto.game_dto import MatchDto, MatchIdDto, PlayerMoveDto  # pyright: ignore[reportMissingTypeStubs]
+from app.service import game_service
 
 
 def init_mp_game_events(sio: Server):
 
     @sio.event
-    def create_game(sid, data):  # pyright: ignore[reportUnusedFunction]
-        pass
+    def join_game(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
+        user_id = get_user_id_by_sid_from_cache(sid)
+        match_id = MatchIdDto(**data).id
+        match_dto: MatchDto = game_service.add_user_to_match(user_id, match_id, "MP")
+
+        sio.enter_room(sid, match_id)
+        sio.emit("current_game_state", match_dto, to=sid)
 
     @sio.event
-    def join_game(sid, data):  # pyright: ignore[reportUnusedFunction]
-        pass
+    def rejoin_game(sid: str):  # pyright: ignore[reportUnusedFunction]
+        user_id = get_user_id_by_sid_from_cache(sid)
+        match_dto: MatchDto = game_service.get_active_game(user_id, "MP")
+
+        sio.enter_room(sid, cast(UUID, match_dto.id))
+        sio.emit("current_game_state", match_dto, to=sid)
 
     @sio.event
-    def rejoin_game(sid, data):  # pyright: ignore[reportUnusedFunction]
-        pass
+    def make_player_move(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
+        user_id = get_user_id_by_sid_from_cache(sid)
+        player_move = PlayerMoveDto(**data)
+        match_dto: MatchDto = game_service.make_player_move(user_id, player_move, "MP")
+
+        sio.emit("current_game_state", match_dto, room=cast(UUID, match_dto.id))
 
     @sio.event
-    def make_player_step(sid, data):  # pyright: ignore[reportUnusedFunction]
-        pass
-        # sio.enter_room(sid, data["room"])
-        # sio.emit("mp_game_event", data["msg"], room=data["room"])
-
-    @sio.event
-    def leave_game(sid, data):  # pyright: ignore[reportUnusedFunction]
-        pass
+    def leave_game(sid: str):  # pyright: ignore[reportUnusedFunction]
+        user_id = get_user_id_by_sid_from_cache(sid)
+        match_id = cast(UUID, get_match_by_user_id_from_cache(user_id, "MP").id)
+        sio.leave_room(sid, match_id)

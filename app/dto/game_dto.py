@@ -1,7 +1,12 @@
+from uuid import UUID
 from app.dto.dto_base_model import DtoBaseModel
 from app.game.game import Cell, Coordinates, Player
 from app.game.match import Match, MatchState
 from typing import Literal
+
+
+class MatchIdDto(DtoBaseModel):
+    id: UUID
 
 
 class GameStatusDto(DtoBaseModel):
@@ -14,6 +19,7 @@ class PlayerMoveDto(DtoBaseModel):
 
 
 class MatchDto(DtoBaseModel):
+    id: UUID | None
     state: str
     winner_id: int | None
     empty_seats: int
@@ -26,7 +32,7 @@ class MatchDto(DtoBaseModel):
         current_player = next((p.player for p in match.participants if user_id == p.user_id))
         empty_seats = len([p for p in match.game.players if p is not Player.PLAYER_VOID]) - len(match.participants)
         board = cls._generate_2d_list_from_board(match.game.board, match.state, current_player)
-        return cls(state=state, winner_id=winner_id, empty_seats=empty_seats, board=board)
+        return cls(id=match.id, state=state, winner_id=winner_id, empty_seats=empty_seats, board=board)
 
     @staticmethod
     def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:

@@ -2,7 +2,9 @@ from typing import Literal, cast
 from app.cache import REDIS_TIMEOUT, redis
 import pickle
 from app.cache.cache_decorators import handle_cache_errors
-from app.error_handling.exceptions import CacheElementNotFoundException, CacheInvalidMatchException, CacheConcurrencyException
+from app.error_handling.exceptions import (CacheElementNotFoundException,
+                                           CacheInvalidMatchException,
+                                           CacheConcurrencyException)
 from app.game.match import Match
 from uuid import UUID, uuid4
 
@@ -36,7 +38,13 @@ def save_match_to_cache(match: Match, type: SaveType):
 
 
 @handle_cache_errors
-def get_match_from_cache(user_id: int, type: SaveType) -> Match:
+def add_match_to_user_in_cache(user_id: int, match_id: UUID, type: SaveType):
+    user_key = _get_key(type, "user", user_id)
+    redis.set(user_key, str(match_id))
+
+
+@handle_cache_errors
+def get_match_by_user_id_from_cache(user_id: int, type: SaveType) -> Match:
     user_key = _get_key("SP", "user", user_id)
 
     match_id_bytes = cast(bytes | None, redis.get(user_key))
@@ -45,6 +53,12 @@ def get_match_from_cache(user_id: int, type: SaveType) -> Match:
     match_id_str = match_id_bytes.decode("utf-8")
 
     match_id = UUID(match_id_str)
+
+    return get_match_by_id_from_cache(match_id, type)
+
+
+@handle_cache_errors
+def get_match_by_id_from_cache(match_id: UUID, type: SaveType) -> Match:
     match_key = _get_key(type, "match", match_id)
     match_bytes = cast(bytes | None, redis.get(match_key))
     match_obj: Match | None = pickle.loads(match_bytes) if match_bytes is not None else None

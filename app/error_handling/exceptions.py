@@ -107,6 +107,22 @@ class GameNotFoundException(GameException):
         super().__init__(404, error)
 
 
+class GameIsFullException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_IS_FULL",
+            message="There is no free slots in the game the user tries to join")
+        super().__init__(400, error)
+
+
+class InvalidGameStateException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="INVALID_GAME_STATE",
+            message="The game is in a state when it can't accept player moves")
+        super().__init__(400, error)
+
+
 class UserException(ApiException):
     pass
 
