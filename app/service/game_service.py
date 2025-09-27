@@ -1,4 +1,6 @@
+from typing import cast
 from uuid import UUID
+from socketio import Server
 from app.error_handling.exceptions import (GameIsFullException,
                                            InvalidBoardException, InvalidGameStateException,
                                            InvalidPlayerMoveException,
@@ -20,8 +22,9 @@ from app.cache.match_cache import (SaveType,
                                    save_match_to_cache,
                                    get_match_by_user_id_from_cache,
                                    remove_match_from_cache,
-                                   check_match_in_cache,
-                                   add_match_to_user_in_cache)
+                                   check_match_in_cache)
+from app.cache.lobby_cache import add_match_to_lobby, remove_match_from_lobby
+from app.event_handlers.game_lobby_events import broadcast_lobby_update
 
 
 def create_sp_game(user_id: int):
@@ -42,7 +45,7 @@ def create_sp_game(user_id: int):
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
 
 
-def create_mp_game(user_id: int):
+def create_mp_game(user_id: int, sio: Server):
     num_of_rows = 15
     num_of_columns = 15
     num_of_mines = 12
@@ -67,7 +70,9 @@ def create_mp_game(user_id: int):
         participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
         match = Match(game, participants=participants)
         match.state = MatchState.WAITING
-        save_match_to_cache(match, "MP")
+        match_saved = save_match_to_cache(match, "MP")
+        add_match_to_lobby(cast(UUID, match_saved.id))
+        broadcast_lobby_update(sio)
         return None
 
     raise InvalidBoardException()
@@ -91,7 +96,7 @@ def get_active_game(user_id: int, game_type: SaveType) -> MatchDto:
     return MatchDto.from_match(match, user_id)
 
 
-def add_user_to_match(user_id: int, match_id: UUID, game_type: SaveType) -> MatchDto:
+def add_user_to_match(user_id: int, match_id: UUID, game_type: SaveType, sio: Server) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
@@ -101,10 +106,16 @@ def add_user_to_match(user_id: int, match_id: UUID, game_type: SaveType) -> Matc
     if free_player_slots:
         participant = Participant(user_id=user_id, player=[*free_player_slots][0])
         match.participants.add(participant)
+        if len(free_player_slots) == 1:
+            match.state = MatchState.ACTIVE
     else:
         raise GameIsFullException()
 
-    add_match_to_user_in_cache(user_id, match_id, game_type)
+    save_match_to_cache(match, "MP")
+
+    if match.state == MatchState.ACTIVE:
+        remove_match_from_lobby(cast(UUID, match.id))
+        broadcast_lobby_update(sio)
 
     return MatchDto.from_match(match, user_id)
 

@@ -12,7 +12,7 @@ def create_app():
     flask_app = Flask(__name__)
     sio = socketio.Server(cors_allowed_origins="http://localhost:5173")
 
-    init_endpoints(flask_app)
+    init_endpoints(flask_app, sio)
 
     init_websocket_events(sio)
 

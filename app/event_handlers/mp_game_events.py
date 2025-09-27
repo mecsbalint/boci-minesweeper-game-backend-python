@@ -13,7 +13,7 @@ def init_mp_game_events(sio: Server):
     def join_game(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
         user_id = get_user_id_by_sid_from_cache(sid)
         match_id = MatchIdDto(**data).id
-        match_dto: MatchDto = game_service.add_user_to_match(user_id, match_id, "MP")
+        match_dto: MatchDto = game_service.add_user_to_match(user_id, match_id, "MP", sio)
 
         sio.enter_room(sid, match_id)
         sio.emit("current_game_state", match_dto, to=sid)

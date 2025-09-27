@@ -14,7 +14,7 @@ KeyType = Literal["user", "match"]
 
 
 @handle_cache_errors
-def save_match_to_cache(match: Match, type: SaveType):
+def save_match_to_cache(match: Match, type: SaveType) -> Match:
     user_keys = [_get_key(type, "user", participant.user_id) for participant in match.participants]
 
     match.id = match.id if match.id else uuid4()
@@ -36,11 +36,7 @@ def save_match_to_cache(match: Match, type: SaveType):
             pipeline.set(user_key, str(match.id), ex=REDIS_TIMEOUT)
         pipeline.execute()
 
-
-@handle_cache_errors
-def add_match_to_user_in_cache(user_id: int, match_id: UUID, type: SaveType):
-    user_key = _get_key(type, "user", user_id)
-    redis.set(user_key, str(match_id))
+        return match
 
 
 @handle_cache_errors
@@ -67,6 +63,17 @@ def get_match_by_id_from_cache(match_id: UUID, type: SaveType) -> Match:
         raise CacheElementNotFoundException()
     else:
         return match_obj
+    
+
+@handle_cache_errors
+def get_matches_by_ids_from_cache(match_ids: set[UUID], type: SaveType):
+    match_set: set[Match] = set()
+
+    for id in match_ids:
+        match = get_match_by_id_from_cache(id, type)
+        match_set.add(match)
+
+    return match_set
 
 
 @handle_cache_errors
