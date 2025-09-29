@@ -19,13 +19,13 @@ class PlayerMoveDto(DtoBaseModel):
 
 
 class MatchLobbyDto(DtoBaseModel):
-    id: UUID | None
+    id: str | None
     empty_seats: int
 
     @classmethod
     def from_match(cls, match: Match):
         empty_seats = len([p for p in match.game.players if p is not Player.PLAYER_VOID]) - len(match.participants)
-        return cls(id=match.id, empty_seats=empty_seats)
+        return cls(id=str(match.id), empty_seats=empty_seats)
 
 
 class MatchDto(DtoBaseModel):

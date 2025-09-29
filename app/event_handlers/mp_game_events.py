@@ -16,7 +16,7 @@ def init_mp_game_events(sio: Server):
         match_dto: MatchDto = game_service.add_user_to_match(user_id, match_id, "MP", sio)
 
         sio.enter_room(sid, match_id)
-        sio.emit("current_game_state", match_dto, to=sid)
+        sio.emit("current_game_state", match_dto.model_dump(by_alias=True), to=sid)
 
     @sio.event
     def rejoin_game(sid: str):  # pyright: ignore[reportUnusedFunction]
@@ -24,7 +24,7 @@ def init_mp_game_events(sio: Server):
         match_dto: MatchDto = game_service.get_active_game(user_id, "MP")
 
         sio.enter_room(sid, cast(UUID, match_dto.id))
-        sio.emit("current_game_state", match_dto, to=sid)
+        sio.emit("current_game_state", match_dto.model_dump(by_alias=True), to=sid)
 
     @sio.event
     def make_player_move(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
@@ -32,7 +32,7 @@ def init_mp_game_events(sio: Server):
         player_move = PlayerMoveDto(**data)
         match_dto: MatchDto = game_service.make_player_move(user_id, player_move, "MP")
 
-        sio.emit("current_game_state", match_dto, room=cast(UUID, match_dto.id))
+        sio.emit("current_game_state", match_dto.model_dump(by_alias=True), room=cast(UUID, match_dto.id))
 
     @sio.event
     def leave_game(sid: str):  # pyright: ignore[reportUnusedFunction]
