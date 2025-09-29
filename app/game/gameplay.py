@@ -23,7 +23,7 @@ def populate_with_mines(board: dict[Coordinates, Cell], num_of_mines: int, *, ac
     for _ in range(num_of_mines):
         cell = choice(valid_cells_list)
         cell.is_mine = True
-        valid_cells_set.remove(cell)
+        valid_cells_list.remove(cell)
         for neighbor in cell.neighbors:
             neighbor.num_neighbor_mines += 1
 
@@ -89,6 +89,7 @@ def get_cell_block(game: Game, position: Coordinates) -> set[Cell]:
                 cells_to_check_next.update([
                     neighbor
                     for neighbor in cell.neighbors
+                    if cell not in block
                     ])
         cells_to_check = cells_to_check_next
 

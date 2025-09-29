@@ -9,7 +9,7 @@ def init_sp_game_endpoints(app: Flask):
 
     @app.route("/api/game/sp", methods=["POST"])
     @jwt_required()
-    def create_game():  # pyright: ignore[reportUnusedFunction]
+    def create_sp_game():  # pyright: ignore[reportUnusedFunction]
         game_service.create_sp_game(current_user._get_current_object())
         return Response(status=201)
 

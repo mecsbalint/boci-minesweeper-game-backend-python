@@ -3,12 +3,11 @@ from flask import Flask
 from app.error_handling.error_handlers import http_exception_handler
 from app.extensions import jwt
 from werkzeug.exceptions import Unauthorized
-from app.security import JWT_SECRET_KEY
 
 
-def init_flask_jwt(app: Flask):
+def init_flask_jwt(app: Flask, jwt_secret_key: str):
 
-    app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
+    app.config["JWT_SECRET_KEY"] = jwt_secret_key
     jwt.init_app(app)
 
     @jwt.user_lookup_loader  # pyright: ignore[reportUnknownMemberType]

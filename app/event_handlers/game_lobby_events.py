@@ -14,7 +14,7 @@ def init_game_lobby_events(sio: Server):
         match_lobby_dtos = _create_match_lobby_dtos()
 
         sio.enter_room(sid, LOBBY_ROOM)
-        sio.emit("get_lobby", match_lobby_dtos, to=sid)
+        sio.emit("lobby_update", match_lobby_dtos, to=sid)
 
 
 def broadcast_lobby_update(sio: Server):

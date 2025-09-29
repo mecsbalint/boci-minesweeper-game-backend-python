@@ -9,4 +9,4 @@ JWT_SECRET_KEY = str(os.getenv("JWT_SECRET_KEY"))
 
 
 def init_security(app: Flask):
-    init_flask_jwt(app)
+    init_flask_jwt(app, JWT_SECRET_KEY)
