@@ -97,3 +97,6 @@ class MatchDto(DtoBaseModel):
             return "empty"
         else:
             return str(cell.num_neighbor_mines)
+
+
+MatchDtoDict = dict[str, MatchDto]
