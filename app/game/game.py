@@ -4,15 +4,15 @@ from app.error_handling.exceptions import InvalidCellException
 
 
 class Player(Enum):
-    PLAYER_ONE = auto()
-    PLAYER_TWO = auto()
-    PLAYER_THREE = auto()
-    PLAYER_FOUR = auto()
-    PLAYER_FIVE = auto()
-    PLAYER_SIX = auto()
-    PLAYER_SEVEN = auto()
-    PLAYER_EIGHT = auto()
-    PLAYER_VOID = auto()
+    PLAYER_ONE = 0
+    PLAYER_TWO = 1
+    PLAYER_THREE = 2
+    PLAYER_FOUR = 3
+    PLAYER_FIVE = 4
+    PLAYER_SIX = 5
+    PLAYER_SEVEN = 6
+    PLAYER_EIGHT = 7
+    PLAYER_VOID = 8
 
 
 class ActionType(Enum):

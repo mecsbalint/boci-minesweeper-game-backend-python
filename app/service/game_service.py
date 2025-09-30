@@ -48,9 +48,9 @@ def create_sp_game(user_id: int):
 def create_mp_game(user_id: int, sio: Server):
     num_of_rows = 15
     num_of_columns = 15
-    num_of_mines = 12
-    num_of_players = 2
+    num_of_mines = 20
     start_positions = [Coordinates(3, 8), Coordinates(12, 8)]
+    num_of_players = len(start_positions)
 
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
@@ -70,9 +70,14 @@ def create_mp_game(user_id: int, sio: Server):
         participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
         match = Match(game, participants=participants)
         match.state = MatchState.WAITING
+
+        for i in range(num_of_players):
+            handle_player_step(game, ActionType.REVEAL, start_positions[i], Player(i))
+
         match_saved = save_match_to_cache(match, "MP")
         add_match_to_lobby(cast(UUID, match_saved.id))
         broadcast_lobby_update(sio)
+
         return None
 
     raise InvalidBoardException()
@@ -96,11 +101,13 @@ def get_active_game(user_id: int, game_type: SaveType) -> MatchDto:
     return MatchDto.from_match(match, user_id)
 
 
-def add_user_to_match(user_id: int, match_id: UUID, game_type: SaveType, sio: Server) -> MatchDto:
+def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Server) -> MatchDto:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
-    match = get_match_by_id_from_cache(match_id, game_type)
+    match_id_uuid = UUID(match_id)
+
+    match = get_match_by_id_from_cache(match_id_uuid, game_type)
 
     free_player_slots = {player for player in match.game.players if player is not Player.PLAYER_VOID} - {participant.player for participant in match.participants}
     if free_player_slots:
