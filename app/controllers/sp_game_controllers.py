@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, cast
 from flask import Flask, jsonify, Response, request
 from flask_jwt_extended import jwt_required, current_user  # pyright: ignore[reportUnknownVariableType]
-from app.dto.game_dto import GameStatusDto, PlayerMoveDto
+from app.dto.game_dto import GameStatusDto, MatchDto, PlayerMoveDto
 from app.service import game_service
 
 
@@ -35,5 +35,7 @@ def init_sp_game_endpoints(app: Flask):
 
         player_move_dto = PlayerMoveDto(**payload)
 
-        match_dto = game_service.make_player_move(current_user._get_current_object(), player_move_dto, "SP")
+        user_id: int = current_user._get_current_object()
+
+        match_dto = game_service.make_player_move(user_id, player_move_dto, "SP")[user_id]
         return jsonify(match_dto.model_dump(by_alias=True)), 200

@@ -15,7 +15,7 @@ from app.game.gameplay import (check_for_finish,
                                remove_mines)
 from app.game.game import ActionType, Coordinates, Player
 from app.service.user_service import get_user_by_id
-from ..dto.game_dto import MatchDto, PlayerMoveDto
+from ..dto.game_dto import MatchDto, MatchDtoDict, PlayerMoveDto
 from app.game.match import Match, MatchState, Participant
 from app.cache.match_cache import (SaveType,
                                    get_match_by_id_from_cache,
@@ -101,7 +101,7 @@ def get_active_game(user_id: int, game_type: SaveType) -> MatchDto:
     return MatchDto.from_match(match, user_id)
 
 
-def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Server) -> MatchDto:
+def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Server) -> MatchDtoDict:
     if not get_user_by_id(user_id):
         raise UserNotFoundException("id")
 
@@ -124,10 +124,14 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
         remove_match_from_lobby(cast(UUID, match.id))
         broadcast_lobby_update(sio)
 
-    return MatchDto.from_match(match, user_id)
+    match_dto_dict: MatchDtoDict = dict()
+    for participant in match.participants:
+        match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
+
+    return match_dto_dict
 
 
-def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveType) -> MatchDto:
+def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveType) -> MatchDtoDict:
     num_of_mines = 10
 
     if not get_user_by_id(user_id):
@@ -167,4 +171,8 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
     else:
         save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
 
-    return MatchDto.from_match(match, user_id)
+    match_dto_dict: MatchDtoDict = dict()
+    for participant in match.participants:
+        match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
+
+    return match_dto_dict

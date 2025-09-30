@@ -99,4 +99,4 @@ class MatchDto(DtoBaseModel):
             return str(cell.num_neighbor_mines)
 
 
-MatchDtoDict = dict[str, MatchDto]
+MatchDtoDict = dict[int, MatchDto]
