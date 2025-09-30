@@ -12,7 +12,6 @@ def init_game_lobby_events(sio: Server):
 
     @sio.event
     def join_lobby(sid: str):  # pyright: ignore[reportUnusedFunction]
-        print("JOIN LOBBY +++++++++++++++++++++++++++++++++++")
         match_lobby_dto_dicts = _create_match_lobby_dto_dicts()
 
         sio.enter_room(sid, LOBBY_ROOM)
@@ -20,7 +19,6 @@ def init_game_lobby_events(sio: Server):
 
 
 def broadcast_lobby_update(sio: Server):
-    print("BROADCAST LOBBY +++++++++++++++++++++++++++++++++++")
     match_lobby_dto_dicts = _create_match_lobby_dto_dicts()
 
     sio.emit("lobby_update", match_lobby_dto_dicts, room=LOBBY_ROOM)

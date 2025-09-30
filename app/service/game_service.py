@@ -72,6 +72,8 @@ def create_mp_game(user_id: int, sio: Server):
         match.state = MatchState.WAITING
 
         for i in range(num_of_players):
+            print("position: ", start_positions[i])
+            print("player: ", Player(i))
             handle_player_step(game, ActionType.REVEAL, start_positions[i], Player(i))
 
         match_saved = save_match_to_cache(match, "MP")

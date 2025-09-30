@@ -45,9 +45,12 @@ def init_mp_game_events(sio: Server):
 
 
 def _emit_to_participants(sio: Server, match_id: str, match_dtos_dict: MatchDtoDict):
-    participant_sids = cast(set[str], sio.manager.get_participants("/", match_id))
-    for participant_sid in participant_sids:
+    participant_sids_raw = cast(set[Any], sio.manager.get_participants("/", match_id))
+    print("participants:", participant_sids_raw)
+    for item in participant_sids_raw:
         try:
+            participant_sid = cast(str, item if not isinstance(item, tuple) else item[0])
+            print("participant_sid: ", participant_sid)
             participant_id = get_user_id_by_sid_from_cache(participant_sid)
             match_dto = match_dtos_dict.get(participant_id)
             if match_dto:
