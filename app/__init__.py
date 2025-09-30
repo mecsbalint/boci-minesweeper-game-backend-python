@@ -6,10 +6,11 @@ from app.security import init_security
 import socketio  # pyright: ignore[reportMissingTypeStubs]
 from app.event_handlers import init_websocket_events
 
+flask_app = Flask(__name__)
+
 
 def create_app():
 
-    flask_app = Flask(__name__)
     sio = socketio.Server(cors_allowed_origins="http://localhost:5173")
 
     init_endpoints(flask_app, sio)

@@ -41,7 +41,7 @@ def save_match_to_cache(match: Match, type: SaveType) -> Match:
 
 @handle_cache_errors
 def get_match_by_user_id_from_cache(user_id: int, type: SaveType) -> Match:
-    user_key = _get_key("SP", "user", user_id)
+    user_key = _get_key(type, "user", user_id)
 
     match_id_bytes = cast(bytes | None, redis.get(user_key))
     if not match_id_bytes:
@@ -63,7 +63,7 @@ def get_match_by_id_from_cache(match_id: UUID, type: SaveType) -> Match:
         raise CacheElementNotFoundException()
     else:
         return match_obj
-    
+
 
 @handle_cache_errors
 def get_matches_by_ids_from_cache(match_ids: set[UUID], type: SaveType):
