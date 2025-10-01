@@ -1,16 +1,13 @@
 from typing import Any
-import os
-from dotenv import load_dotenv
 from flask import Flask
 from app.error_handling.error_handlers import http_exception_handler
 from app.extensions import jwt
 from werkzeug.exceptions import Unauthorized
 
 
-def init_flask_jwt(app: Flask):
-    load_dotenv()
+def init_flask_jwt(app: Flask, jwt_secret_key: str):
 
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    app.config["JWT_SECRET_KEY"] = jwt_secret_key
     jwt.init_app(app)
 
     @jwt.user_lookup_loader  # pyright: ignore[reportUnknownMemberType]

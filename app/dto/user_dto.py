@@ -1,22 +1,27 @@
-from pydantic import BaseModel
+from app.dto.dto_base_model import DtoBaseModel
 
 
-class JwtResponseDto(BaseModel):
+class JwtResponseDto(DtoBaseModel):
     jwt: str
     name: str
+    id: int
 
 
-class UserDto(BaseModel):
+class UserDto(DtoBaseModel):
     id: int
     name: str
 
 
-class UserRegistrationDto(BaseModel):
+class UserRegistrationDto(DtoBaseModel):
     name: str
     email: str
     password: str
 
 
-class UserLoginDto(BaseModel):
+class UserLoginDto(DtoBaseModel):
     email: str
     password: str
+
+
+class WSAuthDto(DtoBaseModel):
+    jwt: str

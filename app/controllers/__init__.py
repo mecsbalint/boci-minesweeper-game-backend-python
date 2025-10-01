@@ -1,8 +1,11 @@
 from flask import Flask
+from socketio import Server
 from .user_controllers import init_user_endpoints
-from .game_controllers import init_game_endpoints
+from .sp_game_controllers import init_sp_game_endpoints
+from .mp_game_controllers import init_mp_game_endpoints
 
 
-def init_endpoints(app: Flask):
+def init_endpoints(app: Flask, sio: Server):
     init_user_endpoints(app)
-    init_game_endpoints(app)
+    init_sp_game_endpoints(app)
+    init_mp_game_endpoints(app, sio)

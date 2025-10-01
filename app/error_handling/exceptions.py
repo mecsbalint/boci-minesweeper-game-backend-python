@@ -18,8 +18,8 @@ class ApiException(Exception):
 
 
 class CacheException(ApiException):
-    def __init__(self, *errors: ErrorDetailDto) -> None:
-        super().__init__(500, *errors)
+    def __init__(self, status: int, *errors: ErrorDetailDto) -> None:
+        super().__init__(status, *errors)
 
 
 class CacheOperationException(CacheException):
@@ -27,7 +27,7 @@ class CacheOperationException(CacheException):
         error = ErrorDetailDto(
             code="CACHE_OPERATION_ERROR",
             message="An error occured during cache operation")
-        super().__init__(error)
+        super().__init__(500, error)
 
 
 class CacheConnectionException(CacheException):
@@ -35,7 +35,31 @@ class CacheConnectionException(CacheException):
         error = ErrorDetailDto(
             code="CACHE_CONNECTION_ERROR",
             message="Cache service is currently unavailable")
-        super().__init__(error)
+        super().__init__(500, error)
+
+
+class CacheElementNotFoundException(CacheException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="CACHE_ELEMENT_NOT_FOUND_ERROR",
+            message="The element is not found in cache")
+        super().__init__(404, error)
+
+
+class CacheInvalidMatchException(CacheException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="CACHE_INVALID_MATCH_ERROR",
+            message="The match the cache tried to use is invalid")
+        super().__init__(404, error)
+
+
+class CacheConcurrencyException(CacheException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="CACHE_CONCURRENCY_ERROR",
+            message="Version conflict: the game state has advanced")
+        super().__init__(409, error)
 
 
 class GameException(ApiException):
@@ -43,11 +67,27 @@ class GameException(ApiException):
         super().__init__(status, *errors)
 
 
+class InvalidBoardException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_BOARD_ERROR",
+            message="An error occured during map generation or initialization")
+        super().__init__(500, error)
+
+
 class InvalidMapException(GameException):
     def __init__(self) -> None:
         error = ErrorDetailDto(
             code="GAME_MAP_ERROR",
-            message="An error occured during map generation or initialization")
+            message="Cannot set winner before the game is finished.")
+        super().__init__(500, error)
+
+
+class InvalidCellException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_CELL_ERROR",
+            message="An error occured during creation or modification of a cell")
         super().__init__(500, error)
 
 
@@ -65,6 +105,22 @@ class GameNotFoundException(GameException):
             code="GAME_NOT_FOUND",
             message="There is no game of the user")
         super().__init__(404, error)
+
+
+class GameIsFullException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_IS_FULL",
+            message="There is no free slots in the game the user tries to join")
+        super().__init__(400, error)
+
+
+class InvalidGameStateException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="INVALID_GAME_STATE",
+            message="The game is in a state when it can't accept player moves")
+        super().__init__(400, error)
 
 
 class UserException(ApiException):

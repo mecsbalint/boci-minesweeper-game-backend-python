@@ -20,8 +20,8 @@ def init_user_endpoints(app: Flask):
 
         expires = datetime.timedelta(hours=1)
         access_token = create_access_token(identity=str(user.id), expires_delta=expires)
-        response_obj = JwtResponseDto(jwt=access_token, name=user.name)
-        return jsonify(response_obj.model_dump())
+        response_obj = JwtResponseDto(jwt=access_token, name=user.name, id=user.id)
+        return jsonify(response_obj.model_dump(by_alias=True))
 
     @app.route("/api/registration", methods=["POST"])
     def registration():  # pyright: ignore[reportUnusedFunction]
