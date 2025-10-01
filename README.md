@@ -30,10 +30,11 @@ Or alternatively clone the repository: ```git clone https://github.com/mecsbalin
     2. Optionally replace the `REDIS_URL` in `.env` if you don't want to use the locally run redis server
     3. Optionall replace the `CACHE_DEFAULT_TIMEOUT`in `.env` to set how long it should store the caching data (by default it's 300 seconds)
 
-4. **Install dependencies and set up Flask related variables**
+4. **Install dependencies and set up Flask or python-socketio related variables**
     1. Open the terminal and navigate to the root directory
     2. Run the `pip install -r requirements.txt` command (install dependencies)
     3. Fill up the `JWT_SECRET_KEY` variable in `.env`
+    4. Optionally change the `FRONTEND_URI` variable in `.env` (it doesn't necessary if you start this frontend server on the same device: [BMG Frontend (React) GitHub page](https://github.com/mecsbalint/boci-minesweeper-game-frontend-React))
 
 
 #### Run
