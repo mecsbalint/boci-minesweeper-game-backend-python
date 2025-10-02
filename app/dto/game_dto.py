@@ -90,7 +90,7 @@ class MatchDto(DtoBaseModel):
         if cell.is_mine:
             return "mine" if not cell.owner else "mine_activated"
         elif not cell.owner:
-            return "empty" if cell.num_neighbor_mines == 0 else str(cell.num_neighbor_mines)
+            return "neutral_" + ("empty" if cell.num_neighbor_mines == 0 else str(cell.num_neighbor_mines))
         elif current_player is not cell.owner:
             return f"opponent_{cell.owner.name}"
         elif cell.num_neighbor_mines == 0:
