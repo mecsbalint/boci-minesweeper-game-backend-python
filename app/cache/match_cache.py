@@ -22,7 +22,7 @@ def save_match_to_cache(match: Match, type: SaveType) -> Match:
     match_key = _get_key(type, "match", match.id)
 
     with redis.pipeline() as pipeline:  # pyright: ignore[reportUnknownMemberType]
-        pipeline.watch(match_key)
+        pipeline.watch(match_key, *user_keys)
 
         current_bytes = cast(bytes | None, redis.get(match_key))
         current_match: Match | None = pickle.loads(current_bytes) if current_bytes is not None else None
@@ -82,11 +82,21 @@ def remove_match_from_cache(match: Match, type: SaveType):
         raise CacheInvalidMatchException()
 
     match_key = _get_key(type, "match", match.id)
-    redis.delete(match_key)
-
     user_keys = [_get_key(type, "user", participant.user_id) for participant in match.participants]
-    for user_key in user_keys:
-        redis.delete(user_key)
+
+    with redis.pipeline() as pipeline:  # pyright: ignore[reportUnknownMemberType]
+        pipeline.watch(match_key, *user_keys)
+
+        current_bytes = cast(bytes | None, redis.get(match_key))
+        current_match: Match | None = pickle.loads(current_bytes) if current_bytes is not None else None
+        if current_match and match.version != current_match.version:
+            raise CacheConcurrencyException()
+
+        pipeline.multi()
+        pipeline.delete(match_key)
+        for user_key in user_keys:
+            pipeline.delete(user_key)
+        pipeline.execute()
 
 
 @handle_cache_errors
