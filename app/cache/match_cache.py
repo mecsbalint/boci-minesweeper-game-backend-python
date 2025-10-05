@@ -34,7 +34,8 @@ def save_match_to_cache(match: Match, type: SaveType) -> Match:
         pipeline.set(match_key, pickle.dumps(match), ex=REDIS_TIMEOUT)
         for user_key in user_keys:
             pipeline.set(user_key, str(match.id), ex=REDIS_TIMEOUT)
-        pipeline.execute()
+        if not pipeline.execute():
+            raise CacheConcurrencyException()
 
         return match
 
@@ -96,7 +97,8 @@ def remove_match_from_cache(match: Match, type: SaveType):
         pipeline.delete(match_key)
         for user_key in user_keys:
             pipeline.delete(user_key)
-        pipeline.execute()
+        if not pipeline.execute():
+            raise CacheConcurrencyException()
 
 
 @handle_cache_errors
