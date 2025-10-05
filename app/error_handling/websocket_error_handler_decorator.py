@@ -10,9 +10,10 @@ R = TypeVar("R")
 P = ParamSpec("P")
 
 
-def websocket_error_handler(sio: Server, sid: str):
-    def websocket_error_handler_decorator(func: Callable[P, R]) -> Callable[P, R]:
-        def websocket_error_handler_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+def websocket_error_handler(sio: Server):
+    def websocket_error_handler_decorator(func: Callable[P, R]):
+        def websocket_error_handler_wrapper(*args: P.args, **kwargs: P.kwargs):
+            sid = args[0] if args else kwargs.get("sid", None)
             exception: Exception | None = None
             try:
                 return func(*args, **kwargs)
@@ -29,7 +30,9 @@ def websocket_error_handler(sio: Server, sid: str):
                 exception = e
                 e_details_dto = ErrorDetailDto(code="ERROR", message="An error occured during websocket communication")
                 error_response = [e_details_dto.model_dump()]
-            logger.error(f"WebSocket operation (session id: {sid}) failed in function {func.__name__}, error: {str(exception)}")
+            logger.error(
+                f"WebSocket operation (session id: {sid}) failed in function {func.__name__}, error: {str(exception)}"
+                )
             sio.emit("error",  error_response, to=sid)
 
         return websocket_error_handler_wrapper

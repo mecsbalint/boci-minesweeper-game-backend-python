@@ -5,12 +5,14 @@ from app.cache.match_cache import get_match_by_user_id_from_cache
 from app.cache.websocket_cache import get_user_id_by_sid_from_cache
 from app.dto.game_dto import MatchDto, MatchDtoDict, MatchIdDto, PlayerMoveDto  # pyright: ignore[reportMissingTypeStubs]
 from app.error_handling.exceptions import CacheElementNotFoundException
+from app.error_handling.websocket_error_handler_decorator import websocket_error_handler
 from app.service import game_service
 
 
 def init_mp_game_events(sio: Server):
 
     @sio.event
+    @websocket_error_handler(sio)
     def join_game(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
         user_id = get_user_id_by_sid_from_cache(sid)
         match_id = MatchIdDto(**data).id
@@ -21,6 +23,7 @@ def init_mp_game_events(sio: Server):
         _emit_to_participants(sio, match_id, match_dtos_dict)
 
     @sio.event
+    @websocket_error_handler(sio)
     def rejoin_game(sid: str):  # pyright: ignore[reportUnusedFunction]
         user_id = get_user_id_by_sid_from_cache(sid)
         match_dto: MatchDto = game_service.get_active_game(user_id, "MP")
@@ -29,6 +32,7 @@ def init_mp_game_events(sio: Server):
         sio.emit("current_game_state", match_dto.model_dump(by_alias=True), to=sid)
 
     @sio.event
+    @websocket_error_handler(sio)
     def make_player_move(sid: str, data: dict[Any, Any]):  # pyright: ignore[reportUnusedFunction]
         user_id = get_user_id_by_sid_from_cache(sid)
         player_move = PlayerMoveDto(**data)
@@ -38,6 +42,7 @@ def init_mp_game_events(sio: Server):
         _emit_to_participants(sio, match_id, match_dtos_dict)
 
     @sio.event
+    @websocket_error_handler(sio)
     def leave_game(sid: str):  # pyright: ignore[reportUnusedFunction]
         user_id = get_user_id_by_sid_from_cache(sid)
         match_id = cast(UUID, get_match_by_user_id_from_cache(user_id, "MP").id)
