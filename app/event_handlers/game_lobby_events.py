@@ -1,8 +1,4 @@
-from typing import Any
 from socketio import Server
-from app.cache.match_cache import get_matches_by_ids_from_cache
-from app.cache.lobby_cache import get_lobby
-from app.dto.game_dto import MatchLobbyDto
 from app.error_handling.websocket_error_handler_decorator import websocket_error_handler
 from app.service.lobby_service import create_match_lobby_dto_dicts
 
