@@ -1,3 +1,4 @@
+from functools import wraps
 import logging
 from typing import ParamSpec, TypeVar, Callable
 from pydantic import ValidationError
@@ -12,6 +13,7 @@ P = ParamSpec("P")
 
 def websocket_error_handler(sio: Server):
     def websocket_error_handler_decorator(func: Callable[P, R]):
+        @wraps(func)
         def websocket_error_handler_wrapper(*args: P.args, **kwargs: P.kwargs):
             sid = args[0] if args else kwargs.get("sid", None)
             exception: Exception | None = None

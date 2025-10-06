@@ -11,8 +11,8 @@ LOBBY_ROOM = "lobby"
 
 def init_game_lobby_events(sio: Server):
 
-    @websocket_error_handler(sio)
     @sio.event
+    @websocket_error_handler(sio)
     def join_lobby(sid: str):  # pyright: ignore[reportUnusedFunction]
         match_lobby_dto_dicts = _create_match_lobby_dto_dicts()
 
