@@ -35,11 +35,11 @@ def create_sp_game(user_id: int):
         raise UserNotFoundException("id")
 
     gameFactory = RectangularGameFactory(num_of_rows, num_of_columns)
-    game = gameFactory.create_game()
+    game = gameFactory.create_game("Single player mode")
     game.players = {Player.PLAYER_VOID, Player.PLAYER_ONE}
 
     participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
-    match = Match(game, participants=participants)
+    match = Match(game, participants=participants, match_owner=user_id)
     match.state = MatchState.READY
 
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
@@ -56,7 +56,7 @@ def create_mp_game(user_id: int, sio: Server):
         raise UserNotFoundException("id")
 
     gameFactory = RectangularGameFactory(num_of_rows, num_of_columns)
-    game = gameFactory.create_game()
+    game = gameFactory.create_game("Versus mode")
 
     for _ in range(10):
 
@@ -68,7 +68,7 @@ def create_mp_game(user_id: int, sio: Server):
 
         game.players = {*list(Player)[:num_of_players]}
         participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
-        match = Match(game, participants=participants)
+        match = Match(game, participants=participants, match_owner=user_id)
         match.state = MatchState.WAITING
 
         for i in range(num_of_players):

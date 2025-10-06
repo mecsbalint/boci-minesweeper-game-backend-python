@@ -28,7 +28,8 @@ class Match:
                  participants: set[Participant] = set(),
                  state: MatchState = MatchState.CREATED,
                  winner: Participant | None = None,
-                 version: int = 0
+                 version: int = 0,
+                 match_owner: int | None = None
                  ):
         self.game = game
         self.id = id
@@ -36,3 +37,4 @@ class Match:
         self.state = state
         self.winner = winner
         self.version = version
+        self.match_owner = match_owner
