@@ -1,6 +1,6 @@
 from typing import Any
 from flask import Flask
-from app.error_handling.error_handlers import http_exception_handler
+from app.error_handling.flask_error_handlers import http_exception_handler
 from app.extensions import jwt
 from werkzeug.exceptions import Unauthorized
 
