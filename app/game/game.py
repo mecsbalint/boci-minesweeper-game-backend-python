@@ -44,8 +44,8 @@ class Game:
                  board: dict[Coordinates, "Cell"] = {},
                  players: set[Player] = set()
                  ):
-        self.game_type = game_type
-        self.map_type = map_type
+        self.game_type: GameType = game_type
+        self.map_type: MapType = map_type
         self.players = players
         self.board = board
 
