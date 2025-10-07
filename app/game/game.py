@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Literal
 from app.error_handling.exceptions import InvalidCellException
 
 
@@ -20,6 +21,12 @@ class ActionType(Enum):
     FLAG = auto()
 
 
+GameType = Literal["Versus mode", "Single player mode"]
+
+
+MapType = Literal["Normal map"]
+
+
 @dataclass(frozen=True)
 class Coordinates:
     x: int
@@ -31,10 +38,14 @@ class Coordinates:
 
 class Game:
     def __init__(self,
+                 game_type: GameType,
+                 map_type: MapType,
                  *,
                  board: dict[Coordinates, "Cell"] = {},
                  players: set[Player] = set()
                  ):
+        self.game_type: GameType = game_type
+        self.map_type: MapType = map_type
         self.players = players
         self.board = board
 

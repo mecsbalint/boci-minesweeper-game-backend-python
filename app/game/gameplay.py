@@ -36,10 +36,6 @@ def remove_mines(board: dict[Coordinates, Cell]):
 
 def handle_player_step(game: Game, action_type: ActionType, action_coordinates: Coordinates, player: Player):
     action_cell = game.board.get(action_coordinates)
-    print("game.players: ", game.players)
-    print("player: ", player)
-    print("action_cell: ", action_cell)
-    print("action_cell.owner: ", action_cell.owner if action_cell else None)
     if not action_cell or action_cell.owner or player not in game.players:
         raise InvalidPlayerMoveException()
 
@@ -48,8 +44,6 @@ def handle_player_step(game: Game, action_type: ActionType, action_coordinates: 
             __handle_reveal_action(game, action_cell, player)
         case ActionType.FLAG:
             __handle_flag_action(action_cell, player)
-
-    print("handle_player_step executed for player: ", player)
 
 
 def __handle_reveal_action(game: Game, action_cell: Cell, player: Player) -> None:
