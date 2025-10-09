@@ -7,6 +7,7 @@ from app.dto.game_dto import MatchDto, MatchDtoDict, MatchIdDto, PlayerMoveDto  
 from app.error_handling.exceptions import CacheElementNotFoundException
 from app.error_handling.websocket_error_handler_decorator import websocket_error_handler
 from app.service import game_service
+from app.service.chat_service import get_chat_by_user_id
 
 
 def init_mp_game_events(sio: Server):
@@ -22,6 +23,9 @@ def init_mp_game_events(sio: Server):
 
         _emit_to_participants(sio, match_id, match_dtos_dict)
 
+        chat = get_chat_by_user_id(user_id)
+        sio.emit("chat", chat, to=sid)
+
     @sio.event
     @websocket_error_handler(sio)
     def rejoin_game(sid: str):  # pyright: ignore[reportUnusedFunction]
@@ -30,6 +34,9 @@ def init_mp_game_events(sio: Server):
 
         sio.enter_room(sid, cast(UUID, match_dto.id))
         sio.emit("current_game_state", match_dto.model_dump(by_alias=True), to=sid)
+
+        chat = get_chat_by_user_id(user_id)
+        sio.emit("chat", chat, to=sid)
 
     @sio.event
     @websocket_error_handler(sio)
