@@ -123,6 +123,28 @@ class InvalidGameStateException(GameException):
         super().__init__(400, error)
 
 
+class ChatException(ApiException):
+    pass
+
+
+class InvalidChatMessageException(ChatException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="CHAT_INVALID_MESSAGE",
+            message="The message is not in a valid form"
+        )
+        super().__init__(400, error)
+
+
+class InvalidUserException(ChatException):
+    def __init__(self, user_id: int) -> None:
+        error = ErrorDetailDto(
+            code="CHAT_INVALID_USER",
+            message=f"The user: {user_id} has no permission to add message to this chat"
+        )
+        super().__init__(400, error)
+
+
 class UserException(ApiException):
     pass
 
