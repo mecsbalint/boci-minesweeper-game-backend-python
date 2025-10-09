@@ -2,6 +2,7 @@ from typing import Any
 from socketio import Server  # pyright: ignore[reportMissingTypeStubs]
 from app.cache.websocket_cache import save_user_session_to_cache, delete_user_session_from_cache
 from app.dto.user_dto import WSAuthDto
+from app.event_handlers.chat_events import init_chat_events
 from app.event_handlers.game_lobby_events import init_game_lobby_events
 from app.security.jwt_handling import decode_jwt_token
 from app.event_handlers.mp_game_events import init_mp_game_events  # pyright: ignore[reportMissingTypeStubs]
@@ -22,3 +23,4 @@ def init_websocket_events(sio: Server):
 
     init_mp_game_events(sio)
     init_game_lobby_events(sio)
+    init_chat_events(sio)

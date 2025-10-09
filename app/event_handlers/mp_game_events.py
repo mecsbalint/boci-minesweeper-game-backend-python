@@ -4,7 +4,7 @@ from socketio import Server
 from app.cache.match_cache import get_match_by_user_id_from_cache
 from app.cache.websocket_cache import get_user_id_by_sid_from_cache
 from app.dto.game_dto import MatchDto, MatchDtoDict, MatchIdDto, PlayerMoveDto  # pyright: ignore[reportMissingTypeStubs]
-from app.error_handling.exceptions import CacheConcurrencyException, CacheElementNotFoundException
+from app.error_handling.exceptions import CacheElementNotFoundException
 from app.error_handling.websocket_error_handler_decorator import websocket_error_handler
 from app.service import game_service
 
