@@ -1,4 +1,5 @@
 import os
+from typing import cast
 from dotenv import load_dotenv
 from flask import Flask
 from app.controllers import init_endpoints
@@ -10,13 +11,14 @@ from app.event_handlers import init_websocket_events
 
 load_dotenv()
 FRONTEND_URI = str(os.getenv("FRONTEND_URI"))
+PORT = int(cast(str, os.getenv("PORT")))
 
 flask_app = Flask(__name__)
 
 
 def create_app():
 
-    sio = socketio.Server(cors_allowed_origins=FRONTEND_URI)
+    sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, f"http://localhost:{PORT}"])
 
     init_endpoints(flask_app, sio)
 
