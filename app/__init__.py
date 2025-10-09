@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask
+import logging
 from app.controllers import init_endpoints
 from app.database import init_db
 from app.error_handling.flask_error_handlers import init_error_handlers
@@ -16,7 +17,7 @@ flask_app = Flask(__name__)
 
 def create_app():
 
-    sio = socketio.Server(cors_allowed_origins=FRONTEND_URI)
+    sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, "http://localhost:5000"])
 
     init_endpoints(flask_app, sio)
 
