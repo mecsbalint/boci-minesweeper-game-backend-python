@@ -19,4 +19,6 @@ def init_chat_events(sio: Server):
 
         match_id, chat = chat_service.add_message(user_id, message)
 
-        sio.emit("chat", chat, room=match_id)
+        match_id_str = str(match_id)
+
+        sio.emit("chat", chat, room=match_id_str)

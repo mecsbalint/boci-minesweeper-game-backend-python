@@ -32,7 +32,7 @@ def init_mp_game_events(sio: Server):
         user_id = get_user_id_by_sid_from_cache(sid)
         match_dto: MatchDto = game_service.get_active_game(user_id, "MP")
 
-        sio.enter_room(sid, cast(UUID, match_dto.id))
+        sio.enter_room(sid, cast(str, match_dto.id))
         sio.emit("current_game_state", match_dto.model_dump(by_alias=True), to=sid)
 
         chat = get_chat_by_user_id(user_id)
