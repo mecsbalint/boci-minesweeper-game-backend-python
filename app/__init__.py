@@ -1,7 +1,7 @@
 import os
+from typing import cast
 from dotenv import load_dotenv
 from flask import Flask
-import logging
 from app.controllers import init_endpoints
 from app.database import init_db
 from app.error_handling.flask_error_handlers import init_error_handlers
@@ -11,13 +11,14 @@ from app.event_handlers import init_websocket_events
 
 load_dotenv()
 FRONTEND_URI = str(os.getenv("FRONTEND_URI"))
+PORT = int(cast(str, os.getenv("PORT")))
 
 flask_app = Flask(__name__)
 
 
 def create_app():
 
-    sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, "http://localhost:5000"])
+    sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, f"http://localhost:{PORT}"])
 
     init_endpoints(flask_app, sio)
 
