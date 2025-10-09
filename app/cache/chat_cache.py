@@ -3,9 +3,12 @@ from uuid import UUID
 from app.cache import redis
 
 
-def add_message_to_chat(match_id: UUID, message: tuple[str, str]):
+def add_message_to_chat(match_id: UUID, message: tuple[str, str]) -> list[tuple[str, str]]:
     chat_key = _get_key_from_match_id(match_id)
     redis.rpush(chat_key, _create_str_from_message(message))
+
+    messages: list[bytes] = cast(list[bytes], redis.lrange(chat_key, 0, -1))
+    return [_create_message_from_str(msg.decode("utf-8")) for msg in messages]
 
 
 def get_chat_by_match_id_from_cache(match_id: UUID) -> list[tuple[str, str]]:

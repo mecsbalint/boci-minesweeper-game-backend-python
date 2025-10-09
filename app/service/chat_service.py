@@ -1,19 +1,24 @@
+from typing import cast
 from uuid import UUID
-from app.database.db_models import User
-from app.dto.chat_dto import ChatDto
+from app.cache.chat_cache import add_message_to_chat, get_chat_by_match_id_from_cache
+from app.cache.match_cache import get_match_by_user_id_from_cache
+from app.error_handling.exceptions import UserNotFoundException
+from app.service.user_service import get_user_by_id
 
 
-def add_message(user_id: int, message: tuple[str, str]) -> tuple[UUID, ChatDto]:
-    pass
+def add_message(user_id: int, message: str) -> tuple[UUID, list[tuple[str, str]]]:
+    match_id = cast(UUID, get_match_by_user_id_from_cache(user_id, "MP").id)
+    user = get_user_by_id(user_id)
+
+    if not user:
+        raise UserNotFoundException("id")
+
+    chat = add_message_to_chat(match_id, (user.name, message))
+
+    return (match_id, chat)
 
 
-def get_chat_dto_by_user_id(user_id: int) -> ChatDto:
-    pass
+def get_chat_by_user_id(user_id: int) -> list[tuple[str, str]]:
+    match_id = cast(UUID, get_match_by_user_id_from_cache(user_id, "MP").id)
 
-
-def add_user_to_chat(match_id: UUID, user: User):
-    pass
-
-
-def remove_user_from_chat(user: User):
-    pass
+    return get_chat_by_match_id_from_cache(match_id)
