@@ -10,7 +10,7 @@ from app.error_handling.exceptions import (GameIsFullException,
 from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import (check_for_finish,
                                check_for_winner,
-                               get_cell_block,
+                               get_cell_block, get_current_scores,
                                handle_player_step,
                                populate_with_mines,
                                remove_mines)
@@ -32,14 +32,16 @@ def create_sp_game(user_id: int):
     num_of_rows = 8
     num_of_columns = 8
 
-    if not get_user_by_id(user_id):
+    user = get_user_by_id(user_id)
+
+    if not user:
         raise UserNotFoundException("id")
 
     gameFactory = RectangularGameFactory(num_of_rows, num_of_columns)
     game = gameFactory.create_game("Single player mode")
     game.players = {Player.PLAYER_VOID, Player.PLAYER_ONE}
 
-    participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
+    participants = {Participant(user_id=user_id, user_name=user.name, score=0, player=Player.PLAYER_ONE)}
     match = Match(game, participants=participants, match_owner=user_id)
     match.state = MatchState.READY
 
@@ -53,7 +55,9 @@ def create_mp_game(user_id: int, sio: Server):
     start_positions = [Coordinates(3, 8), Coordinates(12, 8)]
     num_of_players = len(start_positions)
 
-    if not get_user_by_id(user_id):
+    user = get_user_by_id(user_id)
+
+    if not user:
         raise UserNotFoundException("id")
 
     gameFactory = RectangularGameFactory(num_of_rows, num_of_columns)
@@ -68,7 +72,7 @@ def create_mp_game(user_id: int, sio: Server):
             continue
 
         game.players = {*list(Player)[:num_of_players]}
-        participants = {Participant(user_id=user_id, player=Player.PLAYER_ONE)}
+        participants = {Participant(user_id=user_id, user_name=user.name, score=0, player=Player.PLAYER_ONE)}
         match = Match(game, participants=participants, match_owner=user_id)
         match.state = MatchState.WAITING
 
@@ -103,16 +107,21 @@ def get_active_game(user_id: int, game_type: SaveType) -> MatchDto:
 
 
 def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Server) -> MatchDtoDict:
-    if not get_user_by_id(user_id):
+    user = get_user_by_id(user_id)
+
+    if not user:
         raise UserNotFoundException("id")
 
     match_id_uuid = UUID(match_id)
 
     match = get_match_by_id_from_cache(match_id_uuid, game_type)
 
+    if match.state != MatchState.WAITING:
+        raise InvalidGameStateException()
+
     free_player_slots = {player for player in match.game.players if player is not Player.PLAYER_VOID} - {participant.player for participant in match.participants}
     if free_player_slots:
-        participant = Participant(user_id=user_id, player=[*free_player_slots][0])
+        participant = Participant(user_id=user_id, user_name=user.name, score=0, player=[*free_player_slots][0])
         match.participants.add(participant)
         if len(free_player_slots) == 1:
             match.state = MatchState.ACTIVE
@@ -172,6 +181,10 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
         set_ttl_for_chat(cast(UUID, match.id))
     else:
         save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
+
+    scores = get_current_scores(match.game)
+    for participant in match.participants:
+        participant.score = scores.get(participant.player, 0)
 
     match_dto_dict: MatchDtoDict = dict()
     for participant in match.participants:

@@ -119,7 +119,7 @@ class InvalidGameStateException(GameException):
     def __init__(self) -> None:
         error = ErrorDetailDto(
             code="INVALID_GAME_STATE",
-            message="The game is in a state when it can't accept player moves")
+            message="The game is in a state when it can't accept this player action")
         super().__init__(400, error)
 
 

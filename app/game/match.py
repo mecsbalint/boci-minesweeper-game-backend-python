@@ -14,9 +14,13 @@ class MatchState(Enum):
 class Participant:
     def __init__(self,
                  user_id: int,
+                 user_name: str,
+                 score: int,
                  player: Player
                  ):
         self.user_id = user_id
+        self.user_name = user_name
+        self.score = score
         self.player = player
 
 
