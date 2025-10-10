@@ -1,7 +1,7 @@
 from typing import cast
 from uuid import UUID
 from socketio import Server
-from app.cache.chat_cache import remove_chat_from_cache
+from app.cache.chat_cache import set_ttl_for_chat
 from app.error_handling.exceptions import (GameIsFullException,
                                            InvalidBoardException, InvalidGameStateException,
                                            InvalidPlayerMoveException,
@@ -169,7 +169,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
             if winning_player == participant.player
             ), None)
         remove_match_from_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
-        remove_chat_from_cache(cast(UUID, match.id))
+        set_ttl_for_chat(cast(UUID, match.id))
     else:
         save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
 

@@ -4,10 +4,14 @@ from app.cache import redis
 from app.cache.cache_decorators import handle_cache_errors
 
 
+CHAT_TTL_TIME = 600
+
+
 @handle_cache_errors
 def add_message_to_chat(match_id: UUID, message: tuple[str, str]) -> list[tuple[str, str]]:
     chat_key = _get_key_from_match_id(match_id)
     redis.rpush(chat_key, _create_str_from_message(message))
+    redis.expire(chat_key, CHAT_TTL_TIME, xx=True)
 
     messages: list[bytes] = cast(list[bytes], redis.lrange(chat_key, 0, -1))
     return [_create_message_from_str(msg.decode("utf-8")) for msg in messages]
@@ -32,6 +36,12 @@ def add_chat_to_cache(match_id: UUID):
 def remove_chat_from_cache(match_id: UUID):
     chat_key = _get_key_from_match_id(match_id)
     redis.delete(chat_key)
+
+
+@handle_cache_errors
+def set_ttl_for_chat(match_id: UUID):
+    chat_key = _get_key_from_match_id(match_id)
+    redis.expire(chat_key, CHAT_TTL_TIME)
 
 
 @handle_cache_errors
