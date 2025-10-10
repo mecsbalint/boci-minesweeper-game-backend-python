@@ -79,6 +79,10 @@ def create_mp_game(user_id: int, sio: Server):
         for i in range(num_of_players):
             handle_player_step(game, ActionType.REVEAL, start_positions[i], Player(i))
 
+        scores = get_current_scores(game)
+        for participant in match.participants:
+            participant.score = scores.get(participant.player, 0)
+
         match_saved = save_match_to_cache(match, "MP")
         add_match_to_lobby(cast(UUID, match_saved.id))
         broadcast_lobby_update(sio)
@@ -127,6 +131,10 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
             match.state = MatchState.ACTIVE
     else:
         raise GameIsFullException()
+
+    scores = get_current_scores(match.game)
+    for participant in match.participants:
+        participant.score = scores.get(participant.player, 0)
 
     save_match_to_cache(match, "MP")
 
