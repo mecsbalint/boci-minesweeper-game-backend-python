@@ -111,10 +111,16 @@ def check_for_winner(game: Game) -> Player:
     if len(game.players) == 1:
         return list(game.players)[0]
 
-    candidates = {player: 0 for player in game.players}
-
-    for cell in game.board.values():
-        if cell.owner in candidates:
-            candidates[cell.owner] += 1
+    candidates = get_current_scores(game)
 
     return max(candidates, key=lambda candidate: candidates[candidate])
+
+
+def get_current_scores(game: Game) -> dict[Player, int]:
+    scores = {player: 0 for player in game.players if player is not Player.PLAYER_VOID}
+
+    for cell in game.board.values():
+        if cell.owner in scores:
+            scores[cell.owner] += 1
+
+    return scores

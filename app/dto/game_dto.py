@@ -44,6 +44,7 @@ class MatchDto(DtoBaseModel):
     state: str
     winner_id: int | None
     board: list[list[str]]
+    scoreboard: dict[str, int]
 
     @classmethod
     def from_match(cls, match: Match, user_id: int):
@@ -51,7 +52,8 @@ class MatchDto(DtoBaseModel):
         winner_id = None if not match.winner else match.winner.user_id
         current_player = next((p.player for p in match.participants if user_id == p.user_id))
         board = cls._generate_2d_list_from_board(match.game.board, match.state, current_player)
-        return cls(id=str(match.id), state=state, winner_id=winner_id, board=board)
+        scoreboard = {participant.user_name: participant.score if match.state is not MatchState.WAITING else 0 for participant in match.participants}
+        return cls(id=str(match.id), state=state, winner_id=winner_id, board=board, scoreboard=scoreboard)
 
     @staticmethod
     def _generate_2d_list_from_board(board: dict[Coordinates, Cell], match_state: MatchState, current_player: Player) -> list[list[str]]:
