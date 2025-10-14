@@ -31,12 +31,6 @@ def add_chat_to_cache(match_id: UUID):
 
 
 @handle_cache_errors
-def remove_chat_from_cache(match_id: UUID):
-    chat_key = _get_key_from_match_id(match_id)
-    redis.delete(chat_key)
-
-
-@handle_cache_errors
 def set_ttl_for_chat(match_id: UUID):
     chat_key = _get_key_from_match_id(match_id)
     redis.expire(chat_key, REDIS_TIMEOUT)
