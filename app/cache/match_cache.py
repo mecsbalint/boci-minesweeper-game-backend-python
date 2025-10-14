@@ -33,7 +33,7 @@ def save_match_to_cache(match: Match, type: SaveType) -> Match:
         match.version += 1
         pipeline.set(match_key, pickle.dumps(match), ex=REDIS_TIMEOUT)
         for user_key in user_keys:
-            pipeline.set(user_key, str(match.id), ex=REDIS_TIMEOUT)
+            pipeline.set(user_key, str(match.id))
         if not pipeline.execute():
             raise CacheConcurrencyException()
 
