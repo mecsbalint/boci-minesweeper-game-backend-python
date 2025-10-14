@@ -20,15 +20,22 @@ def handle_match_deletion(match_exp_key: str):
         raise CacheElementNotFoundException()
 
     user_keys = [get_key(match_type, "user", participant.user_id) for participant in match.participants]
+    valid_user_keys: list[str] = []
+
+    for user_key in user_keys:
+        match_id_bytes = cast(bytes | None, redis.get(user_key))
+        match_id_str = match_id_bytes.decode("utf-8") if match_id_bytes else None
+        if match_id_str and match_id_str == str(match.id):
+            valid_user_keys.append(user_key)
 
     with redis.pipeline() as pipeline:  # pyright: ignore[reportUnknownMemberType]
-        pipeline.watch(match_key, *user_keys)
+        pipeline.watch(match_key, *valid_user_keys)
 
         pipeline.multi()
         pipeline.delete(match_key)
         if match_type == "MP":
             set_ttl_for_chat(cast(UUID, match.id))
-        for user_key in user_keys:
+        for user_key in valid_user_keys:
             pipeline.delete(user_key)
         if not pipeline.execute():
             redis.set(match_exp_key, match_key, ex=REDIS_TIMEOUT)
@@ -38,9 +45,4 @@ def handle_match_deletion(match_exp_key: str):
 @handle_cache_errors
 def handle_match_expiration(message: dict[str, Any]):
     match_exp_key = cast(bytes, message["data"]).decode("utf-8")
-    handle_match_deletion(match_exp_key)
-
-
-@handle_cache_errors
-def handle_match_manual_deletion(match_exp_key: str):
     handle_match_deletion(match_exp_key)
