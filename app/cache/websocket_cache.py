@@ -1,6 +1,6 @@
 from typing import cast
 from app.cache.cache_decorators import handle_cache_errors
-from app.cache import redis
+from app.cache.redis_client import redis
 from app.error_handling.exceptions import CacheElementNotFoundException
 
 

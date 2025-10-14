@@ -1,6 +1,6 @@
 from typing import cast
 from uuid import UUID
-from app.cache import redis, REDIS_TIMEOUT
+from app.cache.redis_client import redis, REDIS_TIMEOUT
 from app.cache.cache_decorators import handle_cache_errors
 
 

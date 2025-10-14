@@ -1,5 +1,5 @@
 from typing import Literal, cast
-from app.cache import REDIS_TIMEOUT, redis
+from app.cache.redis_client import REDIS_TIMEOUT, redis
 import pickle
 from app.cache.cache_decorators import handle_cache_errors
 from app.error_handling.exceptions import (CacheElementNotFoundException,
