@@ -6,6 +6,7 @@ from app.error_handling.exceptions import CacheElementNotFoundException
 
 SID_TIMEOUT = 86400
 
+
 @handle_cache_errors
 def save_user_session_to_cache(sid: str, user_id: int):
     redis.set(sid, user_id, SID_TIMEOUT)
