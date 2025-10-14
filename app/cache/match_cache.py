@@ -58,6 +58,7 @@ def get_match_by_user_id_from_cache(user_id: int, type: SaveType) -> Match:
 def get_match_by_id_from_cache(match_id: UUID, type: SaveType) -> Match:
     match_key = _get_key(type, "match", match_id)
     match_bytes = cast(bytes | None, redis.get(match_key))
+    redis.expire(match_key, REDIS_TIMEOUT)
     match_obj: Match | None = pickle.loads(match_bytes) if match_bytes is not None else None
 
     if not isinstance(match_obj, Match):
@@ -112,7 +113,10 @@ def check_match_in_cache(user_id: int, type: SaveType) -> bool:
 
     match_id = UUID(match_id_str)
     match_key = _get_key(type, "match", match_id)
-    return redis.exists(match_key) == 1
+    is_exist = redis.exists(match_key) == 1
+    if is_exist:
+        redis.expire(match_key, REDIS_TIMEOUT)
+    return is_exist
 
 
 def _get_key(type: SaveType, key_type: KeyType, id: int | UUID) -> str:
