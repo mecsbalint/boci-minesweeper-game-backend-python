@@ -100,7 +100,7 @@ def create_mp_game(user_id: int, sio: Server):
         match_saved = save_match_to_cache(match, "MP")
 
         if current_match:
-            _remove_user_from_match(user_id, current_match, "MP")
+            _remove_user_from_match(user_id, current_match, "MP", sio)
 
         add_match_to_lobby(cast(UUID, match_saved.id))
         broadcast_lobby_update(sio)
@@ -162,7 +162,7 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
     save_match_to_cache(match, "MP")
 
     if current_match:
-        _remove_user_from_match(user_id, current_match, game_type)
+        _remove_user_from_match(user_id, current_match, game_type, sio)
 
     if match.state == MatchState.ACTIVE:
         remove_match_from_lobby(cast(UUID, match.id))
@@ -239,8 +239,11 @@ def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType, sio
 
     match.participants.remove(user_participant)
 
+    match.game.players.remove(user_participant.player)
+
     if len(match.participants) == 0:
         remove_match_from_cache(match, game_type)
+        remove_match_from_lobby(cast(UUID, match.id))
     else:
         match.match_owner = next((participant.user_id for participant in match.participants if participant.user_id == user_id), None)
 
