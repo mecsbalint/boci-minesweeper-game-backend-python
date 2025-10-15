@@ -5,7 +5,8 @@ from app.error_handling.exceptions import (CacheElementNotFoundException, GameIs
                                            InvalidBoardException, InvalidGameStateException,
                                            InvalidPlayerMoveException,
                                            UserNotFoundException,
-                                           GameNotFoundException)
+                                           GameNotFoundException,
+                                           InvalidPlayerException)
 from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import (check_for_finish,
                                check_for_winner,
@@ -90,7 +91,16 @@ def create_mp_game(user_id: int, sio: Server):
         for participant in match.participants:
             participant.score = scores.get(participant.player, 0)
 
+        try:
+            current_match = get_match_by_user_id_from_cache(user_id, "MP")
+        except CacheElementNotFoundException:
+            current_match = None
+
         match_saved = save_match_to_cache(match, "MP")
+
+        if current_match:
+            _remove_user_from_match(user_id, current_match, "MP")
+
         add_match_to_lobby(cast(UUID, match_saved.id))
         broadcast_lobby_update(sio)
 
@@ -143,7 +153,15 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
     for participant in match.participants:
         participant.score = scores.get(participant.player, 0)
 
+    try:
+        current_match = get_match_by_user_id_from_cache(user_id, "MP")
+    except CacheElementNotFoundException:
+        current_match = None
+
     save_match_to_cache(match, "MP")
+
+    if current_match:
+        _remove_user_from_match(user_id, current_match, game_type)
 
     if match.state == MatchState.ACTIVE:
         remove_match_from_lobby(cast(UUID, match.id))
@@ -205,3 +223,17 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
         match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
 
     return match_dto_dict
+
+
+def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType):
+    user = get_user_by_id(user_id)
+
+    if not user:
+        raise UserNotFoundException("id")
+
+    user_participant = next((participant for participant in match.participants if participant.user_id == user_id), None)
+
+    if not user_participant:
+        raise InvalidPlayerException()
+
+    match.participants.remove(user_participant)
