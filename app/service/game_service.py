@@ -46,11 +46,13 @@ def create_sp_game(user_id: int):
 
     try:
         current_match = get_match_by_user_id_from_cache(user_id, "SP")
-        remove_match_from_cache(current_match, "SP")
     except CacheElementNotFoundException:
-        pass
+        current_match = None
 
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
+
+    if current_match:
+        remove_match_from_cache(current_match, "SP")
 
 
 def create_mp_game(user_id: int, sio: Server):
