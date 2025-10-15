@@ -7,6 +7,7 @@ from app.error_handling.exceptions import (CacheElementNotFoundException, GameIs
                                            UserNotFoundException,
                                            GameNotFoundException,
                                            InvalidPlayerException)
+from app.event_handlers.mp_game_events import emit_to_participants
 from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import (check_for_finish,
                                check_for_winner,
@@ -225,7 +226,7 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
     return match_dto_dict
 
 
-def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType):
+def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType, sio: Server):
     user = get_user_by_id(user_id)
 
     if not user:
@@ -237,3 +238,26 @@ def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType):
         raise InvalidPlayerException()
 
     match.participants.remove(user_participant)
+
+    if len(match.participants) == 0:
+        remove_match_from_cache(match, game_type)
+    else:
+        match.match_owner = next((participant.user_id for participant in match.participants if participant.user_id == user_id), None)
+
+        if check_for_finish(match.game):
+            match.state = MatchState.FINISHED
+            winning_player = check_for_winner(match.game)
+
+            match.winner = next((
+                participant
+                for participant in match.participants
+                if winning_player == participant.player
+                ), None)
+            remove_match_from_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
+        else:
+            save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
+
+        match_dto_dict: MatchDtoDict = dict()
+        for participant in match.participants:
+            match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
+        emit_to_participants(sio, str(match.id), match_dto_dict)
