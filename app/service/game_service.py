@@ -1,7 +1,7 @@
 from typing import cast
 from uuid import UUID
 from socketio import Server
-from app.error_handling.exceptions import (GameIsFullException,
+from app.error_handling.exceptions import (CacheElementNotFoundException, GameIsFullException,
                                            InvalidBoardException, InvalidGameStateException,
                                            InvalidPlayerMoveException,
                                            UserNotFoundException,
@@ -43,6 +43,12 @@ def create_sp_game(user_id: int):
     participants = {Participant(user_id=user_id, user_name=user.name, score=0, player=Player.PLAYER_ONE)}
     match = Match(game, participants=participants, match_owner=user_id)
     match.state = MatchState.READY
+
+    try:
+        current_match = get_match_by_user_id_from_cache(user_id, "SP")
+        remove_match_from_cache(current_match, "SP")
+    except CacheElementNotFoundException:
+        pass
 
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
 
