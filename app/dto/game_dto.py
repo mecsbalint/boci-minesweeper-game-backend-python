@@ -1,7 +1,7 @@
 from app.dto.dto_base_model import DtoBaseModel
 from app.game.game import Cell, Coordinates, GameType, MapType, Player
 from app.game.match import Match, MatchState
-from typing import Literal
+from typing import List, Literal
 
 
 class MatchIdDto(DtoBaseModel):
@@ -24,13 +24,13 @@ class MatchLobbyDto(DtoBaseModel):
     owner_name: str | None
     map_type: MapType
     game_type: GameType
-    participant_ids: set[int]
+    participant_ids: List[int]
 
     @classmethod
     def from_match(cls, match: Match, owner_name: str | None):
         max_num_of_players = len([p for p in match.game.players if p is not Player.PLAYER_VOID])
         empty_seats = max_num_of_players - len(match.participants)
-        participant_ids = {participant.user_id for participant in match.participants}
+        participant_ids = [participant.user_id for participant in match.participants]
         return cls(
             id=str(match.id),
             empty_seats=empty_seats,
