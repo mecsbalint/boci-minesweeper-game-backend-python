@@ -14,11 +14,10 @@ FRONTEND_URI = str(os.getenv("FRONTEND_URI"))
 PORT = int(cast(str, os.getenv("PORT")))
 
 flask_app = Flask(__name__)
+sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, f"http://localhost:{PORT}"])
 
 
 def create_app():
-
-    sio = socketio.Server(async_mode="gevent", cors_allowed_origins=[FRONTEND_URI, f"http://localhost:{PORT}"])
 
     init_endpoints(flask_app, sio)
 

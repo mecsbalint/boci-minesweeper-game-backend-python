@@ -3,12 +3,15 @@ from typing import Any, cast
 from uuid import UUID
 from app.cache.cache_decorators import handle_cache_errors
 from app.cache.chat_cache import set_ttl_for_chat
+from app.cache.lobby_cache import remove_match_from_lobby
 from app.cache.match_cache import get_key, get_match_key_from_match_exp_key, get_type_from_match_key
 from app.cache.redis_client import REDIS_TIMEOUT, redis
+from app.event_handlers.game_lobby_events import broadcast_lobby_update
 from app.game.match import Match
 
 
 def handle_match_deletion(match_exp_key: str):
+    from app import sio
     match_key = get_match_key_from_match_exp_key(match_exp_key)
     match_type = get_type_from_match_key(match_key)
 
@@ -38,6 +41,9 @@ def handle_match_deletion(match_exp_key: str):
             pipeline.delete(user_key)
         if not pipeline.execute():
             redis.set(match_exp_key, match_key, ex=REDIS_TIMEOUT)
+        else:
+            remove_match_from_lobby(cast(UUID, match.id))
+            broadcast_lobby_update(sio)
 
 
 @handle_cache_errors
