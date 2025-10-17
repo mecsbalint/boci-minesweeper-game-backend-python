@@ -1,12 +1,13 @@
 from typing import cast
 from uuid import UUID
 from socketio import Server
-from app.cache.chat_cache import set_ttl_for_chat
-from app.error_handling.exceptions import (GameIsFullException,
+from app.error_handling.exceptions import (CacheElementNotFoundException, GameIsFullException,
                                            InvalidBoardException, InvalidGameStateException,
                                            InvalidPlayerMoveException,
                                            UserNotFoundException,
-                                           GameNotFoundException)
+                                           GameNotFoundException,
+                                           InvalidPlayerException)
+from app.event_handlers.mp_game_events import emit_to_participants
 from app.game.game_factory import RectangularGameFactory
 from app.game.gameplay import (check_for_finish,
                                check_for_winner,
@@ -45,7 +46,15 @@ def create_sp_game(user_id: int):
     match = Match(game, participants=participants, match_owner=user_id)
     match.state = MatchState.READY
 
+    try:
+        current_match = get_match_by_user_id_from_cache(user_id, "SP")
+    except CacheElementNotFoundException:
+        current_match = None
+
     save_match_to_cache(match, "SP")  # pyright: ignore[reportUnknownMemberType]
+
+    if current_match:
+        remove_match_from_cache(current_match, "SP")
 
 
 def create_mp_game(user_id: int, sio: Server):
@@ -83,7 +92,16 @@ def create_mp_game(user_id: int, sio: Server):
         for participant in match.participants:
             participant.score = scores.get(participant.player, 0)
 
+        try:
+            current_match = get_match_by_user_id_from_cache(user_id, "MP")
+        except CacheElementNotFoundException:
+            current_match = None
+
         match_saved = save_match_to_cache(match, "MP")
+
+        if current_match:
+            _remove_user_from_match(user_id, current_match, "MP", sio)
+
         add_match_to_lobby(cast(UUID, match_saved.id))
         broadcast_lobby_update(sio)
 
@@ -136,7 +154,15 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
     for participant in match.participants:
         participant.score = scores.get(participant.player, 0)
 
+    try:
+        current_match = get_match_by_user_id_from_cache(user_id, "MP")
+    except CacheElementNotFoundException:
+        current_match = None
+
     save_match_to_cache(match, "MP")
+
+    if current_match:
+        _remove_user_from_match(user_id, current_match, game_type, sio)
 
     if match.state == MatchState.ACTIVE:
         remove_match_from_lobby(cast(UUID, match.id))
@@ -186,7 +212,6 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
             if winning_player == participant.player
             ), None)
         remove_match_from_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
-        set_ttl_for_chat(cast(UUID, match.id))
     else:
         save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
 
@@ -199,3 +224,43 @@ def make_player_move(user_id: int, player_move: PlayerMoveDto, game_type: SaveTy
         match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
 
     return match_dto_dict
+
+
+def _remove_user_from_match(user_id: int, match: Match, game_type: SaveType, sio: Server):
+    user = get_user_by_id(user_id)
+
+    if not user:
+        raise UserNotFoundException("id")
+
+    user_participant = next((participant for participant in match.participants if participant.user_id == user_id), None)
+
+    if not user_participant:
+        raise InvalidPlayerException()
+
+    match.participants.remove(user_participant)
+
+    match.game.players.remove(user_participant.player)
+
+    if len(match.participants) == 0:
+        remove_match_from_cache(match, game_type)
+        remove_match_from_lobby(cast(UUID, match.id))
+    else:
+        match.match_owner = next((participant.user_id for participant in match.participants if participant.user_id == user_id), None)
+
+        if check_for_finish(match.game):
+            match.state = MatchState.FINISHED
+            winning_player = check_for_winner(match.game)
+
+            match.winner = next((
+                participant
+                for participant in match.participants
+                if winning_player == participant.player
+                ), None)
+            remove_match_from_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
+        else:
+            save_match_to_cache(match, game_type)  # pyright: ignore[reportUnknownMemberType]
+
+        match_dto_dict: MatchDtoDict = dict()
+        for participant in match.participants:
+            match_dto_dict[participant.user_id] = MatchDto.from_match(match, participant.user_id)
+        emit_to_participants(sio, str(match.id), match_dto_dict)

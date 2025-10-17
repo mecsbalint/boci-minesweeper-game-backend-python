@@ -1,14 +1,8 @@
-import logging
-from dotenv import load_dotenv
-from os import getenv
-from typing import cast
-from redis import from_url  # pyright: ignore[reportUnknownVariableType]
+from app.cache.redis_client import redis
+from app.cache.match_deletion_handler import handle_key_expiration_deletion  # pyright: ignore[reportUnknownVariableType]
 
-logger = logging.getLogger(__name__)
-load_dotenv()
+pubsub = redis.pubsub()
+pubsub.psubscribe(**{'__keyevent@0__:del': handle_key_expiration_deletion, '__keyevent@0__:expired': handle_key_expiration_deletion})
+pubsub.run_in_thread(sleep_time=0.01)
 
-REDIS_TIMEOUT = cast(int, getenv("REDIS_DEFAULT_TIMEOUT"))
-
-redis_url = cast(str, getenv("REDIS_URL"))
-redis = from_url(redis_url)
 redis.flushdb()  # pyright: ignore[reportUnknownMemberType]

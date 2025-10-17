@@ -99,6 +99,14 @@ class InvalidPlayerMoveException(GameException):
         super().__init__(400, error)
 
 
+class InvalidPlayerException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="GAME_INVALID_PLAYER",
+            message="The player can't use or modify this match")
+        super().__init__(400, error)
+
+
 class GameNotFoundException(GameException):
     def __init__(self) -> None:
         error = ErrorDetailDto(

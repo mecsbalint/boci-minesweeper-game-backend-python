@@ -21,7 +21,7 @@ def init_mp_game_events(sio: Server):
 
         sio.enter_room(sid, match_id)
 
-        _emit_to_participants(sio, match_id, match_dtos_dict)
+        emit_to_participants(sio, match_id, match_dtos_dict)
 
         chat = get_chat_by_user_id(user_id)
         sio.emit("chat", chat, to=sid)
@@ -46,7 +46,7 @@ def init_mp_game_events(sio: Server):
         match_dtos_dict: MatchDtoDict = game_service.make_player_move(user_id, player_move, "MP")
         match_id = cast(str, match_dtos_dict[user_id].id)
 
-        _emit_to_participants(sio, match_id, match_dtos_dict)
+        emit_to_participants(sio, match_id, match_dtos_dict)
 
     @sio.event
     @websocket_error_handler(sio)
@@ -56,7 +56,7 @@ def init_mp_game_events(sio: Server):
         sio.leave_room(sid, match_id)
 
 
-def _emit_to_participants(sio: Server, match_id: str, match_dtos_dict: MatchDtoDict):
+def emit_to_participants(sio: Server, match_id: str, match_dtos_dict: MatchDtoDict):
     participant_sids_raw = cast(set[Any], sio.manager.get_participants("/", match_id))
     print("participants:", participant_sids_raw)
     for item in participant_sids_raw:

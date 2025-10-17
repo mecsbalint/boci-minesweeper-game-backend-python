@@ -1,7 +1,7 @@
 from typing import cast
 from uuid import UUID
 from app.cache.cache_decorators import handle_cache_errors
-from app.cache import redis
+from app.cache.redis_client import redis
 
 
 LOBBY_KEY = "match_lobby"
