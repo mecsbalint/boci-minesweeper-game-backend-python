@@ -3,7 +3,7 @@ from uuid import UUID
 from socketio import Server
 from app.error_handling.exceptions import (CacheElementNotFoundException, GameIsFullException,
                                            InvalidBoardException, InvalidGameStateException,
-                                           InvalidPlayerMoveException,
+                                           InvalidPlayerMoveException, PlayerJoinException,
                                            UserNotFoundException,
                                            GameNotFoundException,
                                            InvalidPlayerException)
@@ -137,6 +137,9 @@ def add_user_to_match(user_id: int, match_id: str, game_type: SaveType, sio: Ser
     match_id_uuid = UUID(match_id)
 
     match = get_match_by_id_from_cache(match_id_uuid, game_type)
+
+    if user_id in [participant.user_id for participant in match.participants]:
+        raise PlayerJoinException()
 
     if match.state != MatchState.WAITING:
         raise InvalidGameStateException()

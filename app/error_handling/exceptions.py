@@ -107,6 +107,14 @@ class InvalidPlayerException(GameException):
         super().__init__(400, error)
 
 
+class PlayerJoinException(GameException):
+    def __init__(self) -> None:
+        error = ErrorDetailDto(
+            code="PLAYER_CANNOT_JOIN",
+            message="The player can't join to this match")
+        super().__init__(400, error)
+
+
 class GameNotFoundException(GameException):
     def __init__(self) -> None:
         error = ErrorDetailDto(
